@@ -1,4 +1,4 @@
-# Storygraphbot
+# StoryGraphBot
 
 Twitter bot based on StoryGraphToolkit 
 
