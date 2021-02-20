@@ -1,0 +1,62 @@
+
+#Analyse the status page mementos
+#total -> ?
+#diff web archives
+
+
+
+1.old UI vs new UI: how many of each
+
+-> account_page -done
+
+awk -F"/" '$3=="web.archive.org" {print $5}' data_urims_oldUI >>  oldUI_datetime
+awk -F"/" '$3=="archive.md" {print $4}' data_urims_newUI >> newUI_datetime
+awk -F"/" '$3=="wayback.vefsafn.is" {print $5}' data_urims_newUI >> newUI_datetime
+awk -F"/" '$3=="swap.stanford.edu" {print $4}' data_urims_newUI >> newUI_datetime
+
+echo 20200529143451 >>
+
+awk -F"/" '$3=="wr.perma-archives.org" {print $5}' data_urims_oldUI >>  oldUI_datetime
+
+sort oldUI_datetime| cut -c1-8 | uniq -c > oldUI_dates 
+
+sort newUI_datetime| cut -c1-8 | uniq -c > newUI_dates 
+
+
+
+
+-> tweet_page   -
+can split the collected URIM into set of 30 and get the content length for each, 
+use some examples to see if it is status_page' content length follows similar order as account page
+split the mementos between new and old Ui based on the observed pattern.
+
+
+data -> https://github.com/himarshaj/IG_epoch_estimate/blob/main/estimating_epoch.py
+
+
+2. URI-Ms, both in status pages and the acct page, that should have labels but don’t
+
+Our data: Till Nov 25
+
+->Status page
+Violated: get tweet IDs with this label #todo
+Get mementos of these IDs
+Extract labels from these mementos and quantify them.
+
+->Acc 
+get tweetids from account page and check if our labelled_tweetid is in it. -> total pages
+parse for label (have labels).
+
+
+Fact check
+Get tweetids with fact check (no way of getting them after Nov 25??)
+Get mementos -> answer 
+
+
+3. possibly include: distribution of template languages (specifically those that are not in English)
+How to get the language of old UI mementos
+
+
+
+4.for a sub-set (?) of URI-Ms (maybe this only applies to the acct pages), for each of the five regions (20 tweets, trending, etc.) that can have temporal drift, measure min, max, mean, median temporal drift of constituent parts. separately keep track of parts that are 404 (they won’t count against drift computation)
+-> https://github.com/himarshaj/IG_epoch_estimate/blob/main/estimating_epoch.py
