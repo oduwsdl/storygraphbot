@@ -132,7 +132,7 @@ def print_story(date, story_no, story_graph):
 		if k in info:
 			print("{}: {}".format(k,v))
 			story_file.write("{}:{}\n".format(k,v))
-
+	story_file.write("\n")
 
 
 def get_generic_args():
