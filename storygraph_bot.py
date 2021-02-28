@@ -6,13 +6,9 @@ import json
 from datetime import datetime
 import argparse
 
-# #Parameters()
-# activation_degree = 5.0
-# overlap_threshold = 0.9
-
 
 def get_data(start,end):
-	cmd = ('sgtk --pretty-print -o graphs_tmp/current_storygraphdata.json  maxgraph --cluster-stories --start-datetime="'+start+'" --end-datetime="'+end+'" > graphs_tmp/console_output.log  2>&1')
+	cmd = ('sgtk --pretty-print -o graphs_tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="'+start+'" --end-datetime="'+end+'" > graphs_tmp/console_output.log  2>&1')
 	a = os.system(cmd)
 	read_file = open("graphs_tmp/current_storygraphdata.json", "r")
 	data = json.load(read_file)
@@ -45,7 +41,7 @@ def new_cache(date):
 
 
 def overlap_stories(first, second):
-	first, second = set(first), set(second) 
+	#first, second = set(first), set(second) 
 	intersection = float(len(first & second))
 	minimum = min(len(first), len(second))
 	if( minimum != 0 ):
@@ -56,7 +52,7 @@ def overlap_stories(first, second):
 def get_stories_uri_datetimes(jdata): 
 	stories_uri_datetimes = []
 	for story in jdata[date]["stories"]:
-		story_uri_datetimes =[graph["graph_uri_local_datetime"] for graph in story["graph_ids"]]
+		story_uri_datetimes = set([graph["graph_uri_local_datetime"] for graph in story["graph_ids"]])
 		stories_uri_datetimes.append(story_uri_datetimes)
 	return(stories_uri_datetimes)
 
@@ -75,7 +71,9 @@ def map_cache_stories(cache, data, overlap_threshold):
 			coeff_list = [overlap_stories(cs_uridt, s_uridt) for cs_uridt in cachedstories_uri_dts]
 			maxcoeff = max(coeff_list) 
 			if maxcoeff >= overlap_threshold:
-				map_cachestories.update({sn :coeff_list.index(maxcoeff)})
+				c_indx = coeff_list.index(maxcoeff)
+				supdate = s_uridt - cachedstories_uri_dts[c_indx]	
+				map_cachestories.update({c_indx: [sn, supdate]})
 			elif sn == 0:
 				topstory_incache = False
 				print("top story is not in cache")
@@ -94,29 +92,36 @@ def get_topstory(activation_degree, stories, date):
 		print("No top story")
 
 
-def update_story(date, story_update, story_cache):
-	#stuff required from cache
+def new_story(date, top_story, cache_stories):
+	story_no = len(cache_stories)
+	top_story["topstory_no"] = story_no
+	cache_stories.append(top_story) 
+	story_graph = top_story["graph_ids"][0]	
+	print("Creating 1 new thread for new top story (Story"+ str(story_no)+")")			
+	print_story(date, story_no, story_graph) #print top graph of top_story
+
+
+def update_story(date, story_no, story_cache, story_data, update):
 	cache_graphs = story_cache["graph_ids"]
-	prev_no_of_graphs = len(cache_graphs)
-	story_no = story_cache["topstory_no"]
-	#
-	story_graphs = story_update["graph_ids"]
-	no_Of_graphs = len(story_graphs)
-
-	if no_Of_graphs == prev_no_of_graphs:
-		print("No updates on the story "+str(story_no))
-
-	if no_Of_graphs > prev_no_of_graphs:
-		print("updating the thread for the story "+str(story_no))
-		#check top_graph
-		if story_graphs[0] != cache_graphs[0]:
-			print("new top graph for the story "+str(story_no))
-			print_story(date, story_no, story_graphs[0])
-		else: #top snapshot hasnt changed
-			print("story "+str(story_no)+" has new lower degree snapshots") #the avg degree is decreased
-			l_id = sorted(story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
-			latest_graph = l_id[0]
-			print_story(date, story_no, latest_graph)
+	story_graphs = story_data["graph_ids"]
+	print("updating the thread for the Story"+str(story_no))
+	if story_graphs[0] != cache_graphs[0]:
+		print("Average degree for Story"+str(story_no)+" has increased") #the avg degree is increased
+		latest_graph = story_graphs[0]
+	else: #top snapshot hasnt changed
+		latest_graph_uri = sorted(update, reverse=True)[0]
+		latest_story_graphs = [dic for dic in story_graphs if dic["graph_uri_local_datetime"]==latest_graph_uri] 
+		l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
+		latest_graph = l_id[0]
+		if "reported_graph" in story_cache:
+			if story_cache["reported_graph"]["avg_degree"] < latest_graph["avg_degree"]:
+				print("Average degree for Story"+str(story_no)+" has increased") #the avg degree is increased
+			else:
+				print("Average degree for Story"+str(story_no)+" has decreased")
+		else:
+			print("Average degree for Story"+str(story_no)+" has decreased") #the avg degree is decreased
+	print_story(date, story_no, latest_graph)
+	return(latest_graph)	
 
 
 def print_story(date, story_no, story_graph):
@@ -127,13 +132,13 @@ def print_story(date, story_no, story_graph):
 	else:
 		mode = 'w+'
 	story_file = open(story_fname, mode)
-	print("\n")	
+	print("")	
 	for k,v in sorted(story_graph.items()): 
 		if k in info:
 			print("{}: {}".format(k,v))
-			story_file.write("{}:{}\n".format(k,v))
+			story_file.write("{}:{}\n".format(k,v))			
 	story_file.write("\n")
-
+	#print("")
 
 def get_generic_args():
     parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
@@ -152,37 +157,35 @@ if __name__ == "__main__":
 	map_cachestories, st0_incache = map_cache_stories(cache, data, args.overlap_threshold)
 	stories = data["story_clusters"][date]["stories"]	
 	if stories == []:
-		sys.exit("No stories in the data")
+		sys.exit("No stories in the new data")
 	top_story = get_topstory(args.activation_degree,stories, date)
 	print("Activation degree: "+str(args.activation_degree))
 	print("Overlap threshold: "+str(args.overlap_threshold))
+	cache_stories = cache[date]['stories']
 	if top_story:		
-		if not st0_incache or not map_cachestories:
-			print("Creating 1 new thread for new top story")
-			#add story to cache
-			cache_stories = cache[date]['stories']
-			top_story["topstory_no"] = len(cache_stories)
-			print("Total stories: "+str(len(cache_stories)+1)) 
-			cache_stories.append(top_story)
-			story_no = top_story["topstory_no"]			
-			story_graph = top_story["graph_ids"][0]	
-			print_story(date, story_no, story_graph) #print top graph of top_story
+		if not st0_incache or not map_cachestories: 			#add story to cache
+			new_story(date, top_story, cache_stories)
 
-	#Stories in map_cachestories
-	if map_cachestories: #{data_story_index: cache_story_index}
-		for data_sidx,cache_sidx in map_cachestories.items():
-			#get story's current update from data
-			story_update = data["story_clusters"][date]["stories"][data_sidx]
-			cache_stories = cache[date]['stories']			
-			print("Total stories: "+str(len(cache_stories))) 
+	print("\nTotal threads: "+str(len(cache_stories))+"\n") 
+	if map_cachestories:   		#{cache_story_index: [data_story_index, data_story_update]}
+		#print(map_cachestories)
+		print("Updating Stories ...")
+		for cache_sidx, data_story in map_cachestories.items():
 			story_cache = cache_stories[cache_sidx]
-			story_update["topstory_no"] = story_cache["topstory_no"]
-			update_story(date, story_update, story_cache)
-			#update_cache
-			cache_stories[cache_sidx] = story_update 
+			story_no = story_cache["topstory_no"]
+			data_sidx, update = data_story
+			if update:
+				story_data = data["story_clusters"][date]["stories"][data_sidx] 				#get story's current update from data
+				story_data["topstory_no"] = story_no				
+				latest_graph = update_story(date, story_no, story_cache, story_data, update) 
+				story_data["reported_graph"] = latest_graph 
+				cache_stories[cache_sidx] = story_data 				#update_cache					
+			else:
+				print("No new graphs for Story"+str(story_no))
+
+	if len(map_cachestories) < len(cache_stories):
+		print("\nThere are no updates on the other stories")
+ 			
+				
 	#dump_cache 
 	json.dump(cache, open('cache/cache_'+date, 'w'))	
-
-
-
-
