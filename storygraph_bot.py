@@ -140,7 +140,7 @@ def update_story(cache_sidx, data_story):
 			l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
 			latest_graph = l_id[0]
 			
-		formatted_story = print_story(story_no, latest_graph) #print top graph of top_story
+		formatted_story = print_story(story_no, latest_graph)
 		#update_cache
 		story_data["Story ID"] = story_no	
 		story_data["reported_graph"] = formatted_story 											
