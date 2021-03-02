@@ -121,22 +121,33 @@ def new_story(top_story, cache_stories):
 
 
 
-def update_story(story_no, story_cache, story_data, update):
-	cache_graphs = story_cache["graph_ids"]
-	story_graphs = story_data["graph_ids"]
-	#print("updating the thread for the Story"+str(story_no))
+def update_story(cache_sidx, data_story):
+	updated_ids = []
+	story_cache = cache_stories[cache_sidx]
+	story_no = story_cache["Story ID"]
+	data_sidx, update = data_story
 
-	if story_graphs[0] != cache_graphs[0]:
-		latest_graph = story_graphs[0]
-	else: #top snapshot hasnt changed
-		latest_graph_uri = sorted(update, reverse=True)[0]
-		latest_story_graphs = [dic for dic in story_graphs if dic["graph_uri_local_datetime"]==latest_graph_uri] 
+	if update:
+		story_data = stories[data_sidx] 				#get story's current update from data
+		story_graphs = story_data["graph_ids"]
 
-		l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
-		latest_graph = l_id[0]
+		if story_graphs[0] != story_cache["graph_ids"][0]:
+			latest_graph = story_graphs[0]
+		else: 
+			#top snapshot hasnt changed
+			latest_graph_uri = sorted(update, reverse=True)[0]
+			latest_story_graphs = [dic for dic in story_graphs if dic["graph_uri_local_datetime"]==latest_graph_uri] 
+			l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
+			latest_graph = l_id[0]
+			formatted_story = print_story(story_no, latest_graph) #print top graph of top_story
 
-	formatted_story = print_story(story_no, latest_graph) #print top graph of top_story
-	return(formatted_story)	
+		#update_cache
+		story_data["Story ID"] = story_no	
+		story_data["reported_graph"] = formatted_story 											
+		cache_stories[cache_sidx] = story_data 				
+		updated_ids.append(story_no)
+
+	return(updated_ids)	
 
 
 
@@ -152,7 +163,7 @@ def print_story(story_no, story_graph):
 	formatted_graph = {
 		"Story ID" : story_no,
 		"Title" : story_graph['max_node_title'],		
-		"Avg. Degree" : story_graph['avg_degree'],
+		"Avg Degree" : story_graph['avg_degree'],
 		"Graph URI": story_graph['graph_uri']
 			}	
 
@@ -201,32 +212,22 @@ if __name__ == "__main__":
 			new_story_id = new_story["Story ID"]	
 	print(f'New top story id: {new_story_id}')
 
+
 	updated_ids = []
-	if map_cachestories:   		#{cache_story_index: [data_story_index, data_story_update]}
-		#print("Updating Stories ...")
+	if map_cachestories:   	
 		for cache_sidx, data_story in map_cachestories.items():
-			story_cache = cache_stories[cache_sidx]
-			story_no = story_cache["Story ID"]
-			data_sidx, update = data_story
+			updated_ids = update_story(cache_sidx, data_story)	
 
-			if update:
-				story_data = data["story_clusters"][date]["stories"][data_sidx] 				#get story's current update from data
-				updated_story = update_story(story_no, story_cache, story_data, update) 
-				story_data["Story ID"] = story_no	
-				story_data["reported_graph"] = updated_story 											
-				cache_stories[cache_sidx] = story_data 				#update_cache
-				updated_ids.append(story_no)					
-			#else:
-				#print("No new graphs for Story"+str(story_no))
-
-	if updated_ids == []:		
+	if updated_ids == []:
 		updated_ids = None
 	else:
-		updated_ids = ', '.join(updated_ids)	
+		updated_ids = ', '.join(updated_ids)
 	print(f'Updates of previous stories: {updated_ids}')
  							
+
 	#dump_cache 
 	json.dump(cache, open('cache/cache_'+date, 'w'))	
+
 
 	#print stories on console
 	print("\nAll Stories:\n")
