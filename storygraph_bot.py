@@ -9,15 +9,16 @@ import argparse
 
 
 def get_data():
-	cmd = (f'sgtk --pretty-print -o graphs_tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{args.start_datetime}" --end-datetime="{args.end_datetime}" > graphs_tmp/console_output.log  2>&1')
+	cmd = (f'sgtk --pretty-print -o tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{args.start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output.log  2>&1')
 	a = os.system(cmd)
-	read_file = open("graphs_tmp/current_storygraphdata.json", "r")
+	read_file = open("tmp/current_storygraphdata.json", "r")
 	data = json.load(read_file)
 	return(data)
 
 
+
 def get_cache(date):
-	cache_filename = "cache/"+'cache_'+date
+	cache_filename = f'cache/cache_{date}.json'
 	if os.path.isfile(cache_filename):
 		cache = json.load(open(cache_filename, "r"))
 		#print("cache exists")
@@ -25,6 +26,7 @@ def get_cache(date):
 		cache = new_cache(date)
 		#print("New cache initiated")
 	return(cache)
+
 
 
 def new_cache(date):
@@ -53,7 +55,8 @@ def overlap_stories(first, second):
 		return(0) 
 
 
-def get_stories_uri_datetimes(jdata): 
+
+def get_stories_uri_datetimes(jdata, date): 
 	#extract graph_uri_local_datetime from data(list of list) 
 	stories_uri_datetimes = []
 	for story in jdata[date]["stories"]:
@@ -63,12 +66,13 @@ def get_stories_uri_datetimes(jdata):
 
 
 
-def map_cache_stories(cache, data):
+def map_cache_stories(cache, data, date):
 	map_cachestories = {} 	
 	topstory_incache = True
 
-	stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"])
-	cachedstories_uri_dts = get_stories_uri_datetimes(cache)
+	cache_stories = cache[date]['stories']
+	stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
+	cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
 
 	if cachedstories_uri_dts == []	:
 		#print("Empty cache")
@@ -95,14 +99,14 @@ def map_cache_stories(cache, data):
 			if len(map_cachestories) == len(cachedstories_uri_dts):
 				break
 	#mapperfile
-	mapper_update(map_cachestories)
+	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
 
 
 
-def mapper_update(map_cachestories):
+def mapper_update(map_cachestories, data, date):
 	''' mapping json shows the update on the tracked stories at each timestamp'''
-	mapper_file = "mapper_"+ date
+	mapper_file = f'tmp/mapper_{date}.json'
 	if os.path.isfile(mapper_file):
 		try:
 			mapper = json.load(open(mapper_file, "r"))
@@ -117,19 +121,16 @@ def mapper_update(map_cachestories):
 
 
 
-
 def get_topstory(stories):
 	top_story = stories[0]		
 	#check activation degree
 	c = top_story["max_avg_degree"] > args.activation_degree
 	if c:
 		return(top_story)
-	#else:
-		#print("No top story")
 
 
 
-def new_story(top_story, cache_stories):
+def new_story(top_story, cache_stories, date):
 	#print("Creating 1 new thread for new top story")			
 	story_id = f'{date.replace("-","")}_{len(cache_stories)}'
 	top_story["story_id"] = story_id
@@ -140,11 +141,11 @@ def new_story(top_story, cache_stories):
 	#update cache
 	top_story["reported_graphs"].append(story_graph)
 	cache_stories.append(top_story) 	
-	return(story_id, story_graph)
+	return(story_id)
 
 
 
-def get_story_cache(story_id):
+def get_story_cache(story_id, cache_stories):
 	for indx in range(len(cache_stories)):
 		story = cache_stories[indx]
 		if story["story_id"] == story_id:
@@ -152,8 +153,8 @@ def get_story_cache(story_id):
 
 
 
-def update_story(story_id, update):
-	story_cache, c_indx = get_story_cache(story_id)
+def update_story(story_id, update, cache_stories, stories):
+	story_cache, c_indx = get_story_cache(story_id, cache_stories)
 	data_sidx = update["sgtkdata_story"]
 	new_graphs = update['new_graphs']
 
@@ -180,9 +181,35 @@ def update_story(story_id, update):
 
 
 
+def newstory_handler(cache_stories, stories, map_cachestories, st0_incache, date):
+	top_story = get_topstory(stories)
+	new_story_id = None
+	if top_story:		
+		if not st0_incache or not map_cachestories: 			#add story to cache
+			new_story_id = new_story(top_story, cache_stories, date)
+	return(new_story_id)	
+
+
+
+def update_handler(cache_stories, stories, map_cachestories):
+	updated_ids = []
+	if map_cachestories:   	
+		for story_id, update in map_cachestories.items():
+			is_updated = update_story(story_id, update, cache_stories, stories)
+			if is_updated:
+				updated_ids.append(story_id)	
+
+	if updated_ids == []:
+		updated_ids = None
+	else:
+		updated_ids = ', '.join(updated_ids)
+	return(updated_ids)
+
+
+
 def post_story(story_id, story_graph):
 	'''Post story to file'''
-	story_fname = "output/story_"+str(story_id)+".txt"
+	story_fname = f'output/{story_id}.txt'
 	if os.path.exists(story_fname):
 		mode = 'a+' 
 	else:
@@ -211,63 +238,8 @@ def pretty_print_graph(story_id, story_graph):
 
 
 
-def get_generic_args():
-    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
-    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')
-    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')    
-    parser.add_argument('-a','--activation-degree', dest='activation_degree', default= 5.0, type=float, help='The criteria for filtering top stories of the day')
-    parser.add_argument('-ol','--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
-    return parser
-
-
-
-
-if __name__ == "__main__":
-	args = get_generic_args().parse_args()
-	data = get_data()
-	date = list(data["story_clusters"])[0] 
-	cache = get_cache(date)
-	cache_stories = cache[date]['stories']
-
-	map_cachestories, st0_incache = map_cache_stories(cache, data)
-	#print(map_cachestories)
-	stories = data["story_clusters"][date]["stories"]	
-
-	if stories == []:
-		sys.exit("No stories in the new data")
-
-	top_story = get_topstory(stories)
-
-	print("Activation degree: "+str(args.activation_degree))
-	print("Overlap threshold: "+str(args.overlap_threshold))
-
-	new_story_id = None
-	if top_story:		
-		if not st0_incache or not map_cachestories: 			#add story to cache
-			new_story_id, new_story = new_story(top_story, cache_stories)
-	print(f'New top story id: {new_story_id}')
-
-
-	updated_ids = []
-	if map_cachestories:   	
-		for story_id, update in map_cachestories.items():
-			is_updated = update_story(story_id, update)
-			if is_updated:
-				updated_ids.append(story_id)	
-
-	if updated_ids == []:
-		updated_ids = None
-	else:
-		updated_ids = ', '.join(updated_ids)
-	print(f'Updates of previous stories: {updated_ids}')
- 							
-
-	#dump_cache 
-	cache[date]["end_datetime"] = data["end_date"]
-	json.dump(cache, open('cache/cache_'+date, 'w'))	
-
-
-	#print stories on console
+def console_log_stories(cache_stories):
+	'''print stories on console'''
 	print("\nAll Stories:\n")
 	for story in cache_stories:	
 		story_id = story["story_id"]
@@ -287,6 +259,51 @@ if __name__ == "__main__":
 		print('')
 
 
-	#if len(map_cachestories) < len(cache_stories):
-	#print("\nThere are no updates on the other stories")
+
+def get_generic_args():
+    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
+    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')
+    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')    
+    parser.add_argument('-a','--activation-degree', dest='activation_degree', default= 5.0, type=float, help='The criteria for filtering top stories of the day')
+    parser.add_argument('-ol','--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
+    return(parser)
+
+
+
+def main(args):
+	print("Activation degree: "+str(args.activation_degree))
+	print("Overlap threshold: "+str(args.overlap_threshold))
+
+	data = get_data()
+	if "story_clusters" not in data:
+		sys.exit("No stories in the new data")
+
+	date = list(data["story_clusters"])[0]  	
+	cache = get_cache(date)
+	cache_stories = cache[date]['stories']
+	stories = data["story_clusters"][date]["stories"]	
+
+	#match stories
+	map_cachestories, st0_incache = map_cache_stories(cache, data, date)
+
+	#new top story	
+	new_story_id = newstory_handler(cache_stories, stories, map_cachestories, st0_incache, date)
+	print(f'New top story id: {new_story_id}')
+	
+	#update tracking stories
+	updated_ids = update_handler(cache_stories, stories, map_cachestories)	
+	print(f'Updates of previous stories: {updated_ids}')
+
+	#dump_cache 
+	cache[date]["end_datetime"] = data["end_date"]
+	json.dump(cache, open(f'cache/cache_{date}.json', 'w'))	
+
+	#print stories on console
+	console_log_stories(cache_stories)
+
+
+
+if __name__ == "__main__":
+	args = get_generic_args().parse_args()
+	main(args)
 
