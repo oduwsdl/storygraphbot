@@ -71,37 +71,40 @@ def get_stories_uri_datetimes(jdata, date):
 
 def map_cache_stories(cache, data, date):
 	map_cachestories = {} 	
-	topstory_incache = True
+	topstory_incache = False
 
 	cache_stories = cache[date]['stories']
 	stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
 	cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
 
-	if cachedstories_uri_dts == []	:
-		#print("Empty cache")
-		topstory_incache = False
-	else:
-		for sn in range(len(stories_uri_dts)):
-			s_uridt = stories_uri_dts[sn]
-			coeff_list = [overlap_stories(cs_uridt, s_uridt) for cs_uridt in cachedstories_uri_dts]
-			maxcoeff = max(coeff_list) 
+	if cachedstories_uri_dts != []	:
+		matched_stories = {}
+		unmatched_stories = {}
+		for c_indx in range(len(cachedstories_uri_dts)):
+			cs_uridt = cachedstories_uri_dts[c_indx]
+			story_id = cache_stories[c_indx]["story_id"]
+			overlap = []
+			for sn in range(len(stories_uri_dts)):
+				s_uridt = stories_uri_dts[sn]
+				coeff = overlap_stories(cs_uridt, s_uridt)
+				overlap.append({"sgtk_story_id": sn, "coeff": coeff})
 
-			if maxcoeff >= args.overlap_threshold:
-				c_indx = coeff_list.index(maxcoeff)
-				story_id = cache_stories[c_indx]["story_id"]
-				new_graphs = s_uridt - cachedstories_uri_dts[c_indx]
-				update = {"sgtkdata_story": sn, "new_graphs": list(new_graphs)}
-				#map_cachestories.update({c_indx: [sn, supdate]})
+			overlap = sorted(overlap, key=lambda x: x['coeff'], reverse=True)
+			maxcoeff = overlap[0]['coeff']
+			chosensgtk_story_id = overlap[0]['sgtk_story_id']
 
-				map_cachestories.update({story_id: update})
+			if chosensgtk_story_id == 0: 
+				topstory_incache = True
 
-			elif sn == 0:
-				topstory_incache = False
-				#print("Top story is not in cache")
-	
-			if len(map_cachestories) == len(cachedstories_uri_dts):
-				break
-	#mapperfile
+			if maxcoeff >= args.overlap_threshold: 				
+				new_graphs = sorted(list(stories_uri_dts[chosensgtk_story_id] - cs_uridt), reverse=True)
+				matched_stories.update({story_id: {'overlap': overlap, "new_graph_timestamps": new_graphs}})
+			else:
+				unmatched_stories.update({story_id: {'overlap': overlap}})
+
+		map_cachestories["matched_stories"] = matched_stories
+		map_cachestories["unmatched_stories"] = unmatched_stories
+
 	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
 
@@ -109,7 +112,7 @@ def map_cache_stories(cache, data, date):
 
 def mapper_update(map_cachestories, data, date):
 	''' mapping json shows the update on the tracked stories at each timestamp'''
-	mapper_file = f'tmp/mapper_{date}.json'
+	mapper_file = f'tmp/story_updates_{date}.json'
 	if os.path.isfile(mapper_file):
 		try:
 			mapper = json.load(open(mapper_file, "r"))
@@ -158,8 +161,8 @@ def get_story_cache(story_id, cache_stories):
 
 def update_story(story_id, update, cache_stories, stories):
 	story_cache, c_indx = get_story_cache(story_id, cache_stories)
-	data_sidx = update["sgtkdata_story"]
-	new_graphs = update['new_graphs']
+	data_sidx = update["overlap"][0]['sgtk_story_id']
+	new_graphs = update['new_graph_timestamps']
 
 	if new_graphs:
 		story_data = stories[data_sidx] 			
@@ -169,7 +172,7 @@ def update_story(story_id, update, cache_stories, stories):
 			latest_graph = story_graphs[0]
 		else: 
 			#top snapshot hasnt changed
-			latest_graph_uri = sorted(new_graphs, reverse=True)[0]
+			latest_graph_uri = new_graphs[0]
 			latest_story_graphs = [dic for dic in story_graphs if dic["graph_uri_local_datetime"]==latest_graph_uri] 
 			l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
 			latest_graph = l_id[0]
@@ -184,11 +187,11 @@ def update_story(story_id, update, cache_stories, stories):
 
 
 
-def newstory_handler(cache_stories, stories, map_cachestories, st0_incache, date):
+def newstory_handler(cache_stories, stories, st0_incache, date):
 	top_story = get_topstory(stories)
 	new_story_id = None
 	if top_story:		
-		if not st0_incache or not map_cachestories: 			#add story to cache
+		if not st0_incache: 			#add story to cache
 			new_story_id = new_story(top_story, cache_stories, date)
 	return(new_story_id)	
 
@@ -197,7 +200,7 @@ def newstory_handler(cache_stories, stories, map_cachestories, st0_incache, date
 def update_handler(cache_stories, stories, map_cachestories):
 	updated_ids = []
 	if map_cachestories:   	
-		for story_id, update in map_cachestories.items():
+		for story_id, update in map_cachestories["matched_stories"].items():
 			is_updated = update_story(story_id, update, cache_stories, stories)
 			if is_updated:
 				updated_ids.append(story_id)	
@@ -268,7 +271,7 @@ def cleanup():
 	remove = input("Are you sure you want to delete cache? y or n\n")
 	if remove in ['y','yes']:
 		try:
-			os.system(f'rm -f cache/cache_* tmp/* tracked_stories/*')
+			os.system(f'rm -f cache/cache_* tmp/*.json tmp/console_output.log tracked_stories/*.txt')
 			print('Deleted!')
 		except:
 			pass
@@ -307,7 +310,7 @@ def main(args):
 	map_cachestories, st0_incache = map_cache_stories(cache, data, date)
 
 	#new top story	
-	new_story_id = newstory_handler(cache_stories, stories, map_cachestories, st0_incache, date)
+	new_story_id = newstory_handler(cache_stories, stories, st0_incache, date)
 	print(f'New top story id: {new_story_id}')
 	
 	#update tracking stories
