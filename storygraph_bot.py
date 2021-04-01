@@ -9,10 +9,13 @@ import argparse
 
 
 def get_data():
-	cmd = (f'sgtk --pretty-print -o tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{args.start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output.log  2>&1')
-	a = os.system(cmd)
-	read_file = open("tmp/current_storygraphdata.json", "r")
-	data = json.load(read_file)
+	try:
+		cmd = (f'sgtk --pretty-print -o tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{args.start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output.log  2>&1')
+		a = os.system(cmd)
+		read_file = open("tmp/current_storygraphdata.json", "r")
+		data = json.load(read_file)
+	except FileNotFoundError as e:
+		sys.exit('Please install storygraph-toolkit: https://github.com/oduwsdl/storygraph-toolkit.git')
 	return(data)
 
 
@@ -209,7 +212,7 @@ def update_handler(cache_stories, stories, map_cachestories):
 
 def post_story(story_id, story_graph):
 	'''Post story to file'''
-	story_fname = f'output/{story_id}.txt'
+	story_fname = f'tracked_stories/{story_id}.txt'
 	if os.path.exists(story_fname):
 		mode = 'a+' 
 	else:
@@ -255,22 +258,39 @@ def console_log_stories(cache_stories):
 				formatted_story = pretty_print_graph(story_id, graph)
 				for k,v in formatted_story.items():
 					if k!="Story ID": 
-						print(f'\t\t\t{k}: {v}')			
+						print(f'\t\t\t{k}: {v}')
+				print('')		
 		print('')
 
 
 
+def cleanup():
+	remove = input("Are you sure you want to delete cache? y or n\n")
+	if remove in ['y','yes']:
+		try:
+			os.system(f'rm -f cache/cache_* tmp/* tracked_stories/*')
+			print('Deleted!')
+		except:
+			pass
+
+
+
 def get_generic_args():
-    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
-    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')
-    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')    
-    parser.add_argument('-a','--activation-degree', dest='activation_degree', default= 5.0, type=float, help='The criteria for filtering top stories of the day')
-    parser.add_argument('-ol','--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
-    return(parser)
+	parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
+	parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')
+	parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')	
+	parser.add_argument('-a','--activation-degree', dest='activation_degree', default= 5.0, type=float, help='The criteria for filtering top stories of the day')
+	parser.add_argument('-ol','--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
+	parser.add_argument('--cleanup', dest='action', action='store_const', const=cleanup, help='To delete cache and intermidiate files')
+	return(parser)
 
 
 
 def main(args):
+	if args.action == cleanup:
+		args.action()
+		sys.exit()
+
 	print("Activation degree: "+str(args.activation_degree))
 	print("Overlap threshold: "+str(args.overlap_threshold))
 
