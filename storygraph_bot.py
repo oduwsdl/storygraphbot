@@ -7,6 +7,7 @@ from datetime import datetime, timedelta
 import argparse
 
 
+
 def get_data():
 	try:
 		cmd = (f'sgtk --pretty-print -o tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{args.start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output.log  2>&1')
@@ -18,6 +19,7 @@ def get_data():
 	return(data)
 
 
+
 def check_cache_exist(date):
 	cache_filename = f'cache/cache_{date}.json'
 	if os.path.isfile(cache_filename):
@@ -25,6 +27,7 @@ def check_cache_exist(date):
 		return(cache)
 	else:
 		return(False)	
+
 
 
 def get_cache(date):
@@ -105,13 +108,16 @@ def mapper(cachedstories_uri_dts, stories_uri_dts, cache_stories):
 	return(map_cachestories, topstory_incache)	
 
 
+
 def map_cache_stories(cache, data, date):
 	cache_stories = cache[date]['stories']
+
 	if cache_stories != []:
 		stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
 		cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
 		#if cachedstories_uri_dts != []	:
 		map_cachestories, topstory_incache = mapper(cachedstories_uri_dts, stories_uri_dts, cache_stories)
+
 	else:
 		map_cachestories = {} 	
 		topstory_incache = False
@@ -119,29 +125,38 @@ def map_cache_stories(cache, data, date):
 		multiday_start_datetime = f'{multiday_start_date} 00:00:00'
 		#check if previous day cache exist
 		last_cache = check_cache_exist(multiday_start_date)
+
 		if last_cache:
 			map_cachestories, topstory_incache, cache = multiday_mapper(cache,data,last_cache, multiday_start_date, date)
 			#json.dump(cache, open(f'test_cache.json', 'w'))
 			#print(map_cachestories)				
+
 	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
 
 
+
 def multiday_mapper(cache,data,last_cache, multiday_start_date, date):	
 	topstory_incache = False
+
+
 	#get multiday data
 	multiday_start_datetime = f'{multiday_start_date} 00:00:00'
 	cmd = (f'sgtk --pretty-print -o tmp/multi-day-clust.json maxgraph --multiday-cluster --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{multiday_start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output_multiday.log  2>&1')
 	a = os.system(cmd)
 	multiday_data = json.load(open("tmp/multi-day-clust.json", "r"))
-	#map last_cache with multiday_data
+
+
+	#map last_cache with multiday_data 
 	multiday_start_date = str(multiday_start_date)
 	last_cache_stories = last_cache[multiday_start_date]['stories']
 	multiday_stories_uri_dts =  get_stories_uri_datetimes(multiday_data["story_clusters"], "YYYY-MM-DD")
 	last_cachedstories_uri_dts = get_stories_uri_datetimes(last_cache, multiday_start_date)
 	map_cachestories_multiday, topstory_incache_multiday = mapper(last_cachedstories_uri_dts, multiday_stories_uri_dts, last_cache_stories)
 	del topstory_incache_multiday
-	#add traversing stories to intermidiate cache
+
+
+	#check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
 	intermidiate_cache = create_new_cache(date)
 	intermidiate_cache_stories = intermidiate_cache[date]['stories']
 	for story_id, update in map_cachestories_multiday["matched_stories"].items():
@@ -149,16 +164,19 @@ def multiday_mapper(cache,data,last_cache, multiday_start_date, date):
 		if new_graphs:
 			latest_graph_uri = new_graphs[0]
 			if latest_graph_uri.startswith(date):
+
 				#get story from multiday_data
 				data_sidx = update["overlap"][0]['sgtk_story_id']
 				multiday_story = multiday_data["story_clusters"]["YYYY-MM-DD"]["stories"][data_sidx]
 				multiday_story["story_id"] = story_id
 				intermidiate_cache_stories.append(multiday_story)
+
 				#add last_day_cache of the story to new cache
 				last_story_cache, c_indx = get_story_cache(story_id, last_cache_stories)
 				cache[date]['stories'].append(last_story_cache)
 
-	#map intermidiate_cache with new data
+
+	#map intermidiate_cache with current data
 	updated_map_cachestories_multiday ={}
 	if intermidiate_cache_stories != []:
 		stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
@@ -169,6 +187,7 @@ def multiday_mapper(cache,data,last_cache, multiday_start_date, date):
 			map_cachestories_multiday["matched_stories"][story_id]["overlap"] = data_overlap
 			updated_map_cachestories_multiday = map_cachestories_multiday
 			del(map_cachestories_multiday)
+
 
 	return(updated_map_cachestories_multiday, topstory_incache, cache)
 
