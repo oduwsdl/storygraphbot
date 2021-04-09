@@ -3,9 +3,8 @@ import sys
 import os
 import os.path
 import json
-from datetime import datetime
+from datetime import datetime, timedelta
 import argparse
-
 
 
 def get_data():
@@ -19,20 +18,25 @@ def get_data():
 	return(data)
 
 
-
-def get_cache(date):
+def check_cache_exist(date):
 	cache_filename = f'cache/cache_{date}.json'
 	if os.path.isfile(cache_filename):
 		cache = json.load(open(cache_filename, "r"))
-		#print("cache exists")
+		return(cache)
 	else:
-		cache = new_cache(date)
+		return(False)	
+
+
+def get_cache(date):
+	cache = check_cache_exist(date)
+	if not cache:
+		cache = create_new_cache(date)
 		#print("New cache initiated")
 	return(cache)
 
 
 
-def new_cache(date):
+def create_new_cache(date):
 	#current_date = datetime.today().strftime('%Y-%m-%d')
 	current_date = date
 	#current_datetime = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
@@ -69,44 +73,104 @@ def get_stories_uri_datetimes(jdata, date):
 
 
 
-def map_cache_stories(cache, data, date):
+def mapper(cachedstories_uri_dts, stories_uri_dts, cache_stories):
 	map_cachestories = {} 	
-	topstory_incache = False
+	topstory_incache = False	
+	matched_stories = {}
+	unmatched_stories = {}
+	for c_indx in range(len(cachedstories_uri_dts)):
+		cs_uridt = cachedstories_uri_dts[c_indx]
+		story_id = cache_stories[c_indx]["story_id"]
+		overlap = []
+		for sn in range(len(stories_uri_dts)):
+			s_uridt = stories_uri_dts[sn]
+			coeff = overlap_stories(cs_uridt, s_uridt)
+			overlap.append({"sgtk_story_id": sn, "coeff": coeff})
 
+		overlap = sorted(overlap, key=lambda x: x['coeff'], reverse=True)
+		maxcoeff = overlap[0]['coeff']
+		chosensgtk_story_id = overlap[0]['sgtk_story_id']
+
+		if chosensgtk_story_id == 0: 
+			topstory_incache = True
+
+		if maxcoeff >= args.overlap_threshold: 				
+			new_graphs = sorted(list(stories_uri_dts[chosensgtk_story_id] - cs_uridt), reverse=True)
+			matched_stories.update({story_id: {'overlap': overlap, "new_graph_timestamps": new_graphs}})
+		else:
+			unmatched_stories.update({story_id: {'overlap': overlap}})
+
+	map_cachestories["matched_stories"] = matched_stories
+	map_cachestories["unmatched_stories"] = unmatched_stories
+	return(map_cachestories, topstory_incache)	
+
+
+def map_cache_stories(cache, data, date):
 	cache_stories = cache[date]['stories']
-	stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
-	cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
-
-	if cachedstories_uri_dts != []	:
-		matched_stories = {}
-		unmatched_stories = {}
-		for c_indx in range(len(cachedstories_uri_dts)):
-			cs_uridt = cachedstories_uri_dts[c_indx]
-			story_id = cache_stories[c_indx]["story_id"]
-			overlap = []
-			for sn in range(len(stories_uri_dts)):
-				s_uridt = stories_uri_dts[sn]
-				coeff = overlap_stories(cs_uridt, s_uridt)
-				overlap.append({"sgtk_story_id": sn, "coeff": coeff})
-
-			overlap = sorted(overlap, key=lambda x: x['coeff'], reverse=True)
-			maxcoeff = overlap[0]['coeff']
-			chosensgtk_story_id = overlap[0]['sgtk_story_id']
-
-			if chosensgtk_story_id == 0: 
-				topstory_incache = True
-
-			if maxcoeff >= args.overlap_threshold: 				
-				new_graphs = sorted(list(stories_uri_dts[chosensgtk_story_id] - cs_uridt), reverse=True)
-				matched_stories.update({story_id: {'overlap': overlap, "new_graph_timestamps": new_graphs}})
-			else:
-				unmatched_stories.update({story_id: {'overlap': overlap}})
-
-		map_cachestories["matched_stories"] = matched_stories
-		map_cachestories["unmatched_stories"] = unmatched_stories
-
+	if cache_stories != []:
+		stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
+		cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
+		#if cachedstories_uri_dts != []	:
+		map_cachestories, topstory_incache = mapper(cachedstories_uri_dts, stories_uri_dts, cache_stories)
+	else:
+		map_cachestories = {} 	
+		topstory_incache = False
+		multiday_start_date = datetime.strptime(date, "%Y-%m-%d").date() - timedelta(days=1)
+		multiday_start_datetime = f'{multiday_start_date} 00:00:00'
+		#check if previous day cache exist
+		last_cache = check_cache_exist(multiday_start_date)
+		if last_cache:
+			map_cachestories, topstory_incache, cache = multiday_mapper(cache,data,last_cache, multiday_start_date, date)
+			#json.dump(cache, open(f'test_cache.json', 'w'))
+			#print(map_cachestories)				
 	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
+
+
+def multiday_mapper(cache,data,last_cache, multiday_start_date, date):	
+	topstory_incache = False
+	#get multiday data
+	multiday_start_datetime = f'{multiday_start_date} 00:00:00'
+	cmd = (f'sgtk --pretty-print -o tmp/multi-day-clust.json maxgraph --multiday-cluster --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{multiday_start_datetime}" --end-datetime="{args.end_datetime}" > tmp/console_output_multiday.log  2>&1')
+	a = os.system(cmd)
+	multiday_data = json.load(open("tmp/multi-day-clust.json", "r"))
+	#map last_cache with multiday_data
+	multiday_start_date = str(multiday_start_date)
+	last_cache_stories = last_cache[multiday_start_date]['stories']
+	multiday_stories_uri_dts =  get_stories_uri_datetimes(multiday_data["story_clusters"], "YYYY-MM-DD")
+	last_cachedstories_uri_dts = get_stories_uri_datetimes(last_cache, multiday_start_date)
+	map_cachestories_multiday, topstory_incache_multiday = mapper(last_cachedstories_uri_dts, multiday_stories_uri_dts, last_cache_stories)
+	del topstory_incache_multiday
+	#add traversing stories to intermidiate cache
+	intermidiate_cache = create_new_cache(date)
+	intermidiate_cache_stories = intermidiate_cache[date]['stories']
+	for story_id, update in map_cachestories_multiday["matched_stories"].items():
+		new_graphs = update['new_graph_timestamps']
+		if new_graphs:
+			latest_graph_uri = new_graphs[0]
+			if latest_graph_uri.startswith(date):
+				#get story from multiday_data
+				data_sidx = update["overlap"][0]['sgtk_story_id']
+				multiday_story = multiday_data["story_clusters"]["YYYY-MM-DD"]["stories"][data_sidx]
+				multiday_story["story_id"] = story_id
+				intermidiate_cache_stories.append(multiday_story)
+				#add last_day_cache of the story to new cache
+				last_story_cache, c_indx = get_story_cache(story_id, last_cache_stories)
+				cache[date]['stories'].append(last_story_cache)
+
+	#map intermidiate_cache with new data
+	updated_map_cachestories_multiday ={}
+	if intermidiate_cache_stories != []:
+		stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
+		intermcachedstories_uri_dts = get_stories_uri_datetimes(intermidiate_cache, date)
+		map_cachestories_interm, topstory_incache = mapper(intermcachedstories_uri_dts, stories_uri_dts, intermidiate_cache_stories)
+		for story_id, update in map_cachestories_interm["matched_stories"].items():
+			data_overlap = update['overlap']
+			map_cachestories_multiday["matched_stories"][story_id]["overlap"] = data_overlap
+			updated_map_cachestories_multiday = map_cachestories_multiday
+			del(map_cachestories_multiday)
+
+	return(updated_map_cachestories_multiday, topstory_incache, cache)
 
 
 
@@ -115,15 +179,15 @@ def mapper_update(map_cachestories, data, date):
 	mapper_file = f'tmp/story_updates_{date}.json'
 	if os.path.isfile(mapper_file):
 		try:
-			mapper = json.load(open(mapper_file, "r"))
+			mapper_info = json.load(open(mapper_file, "r"))
 		except Exception as e:
 			print(f"Error: Please clear the {mapper_file} created in earlier test run. cmd: rm -f {mapper_file}")
 			sys.exit()
 	else:
-		mapper = {}
+		mapper_info = {}
 
-	mapper[data["end_date"]] = map_cachestories		
-	json.dump(mapper, open(mapper_file, 'w'))
+	mapper_info[data["end_date"]] = map_cachestories		
+	json.dump(mapper_info, open(mapper_file, 'w'))
 
 
 
@@ -286,6 +350,7 @@ def get_generic_args():
 	parser.add_argument('-ol','--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
 	parser.add_argument('--cleanup', dest='action', action='store_const', const=cleanup, help='To delete cache and intermidiate files')
 	return(parser)
+
 
 
 
