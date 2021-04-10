@@ -102,6 +102,8 @@ def mapper(cachedstories_uri_dts, stories_uri_dts, cache_stories):
 			matched_stories.update({story_id: {'overlap': overlap, "new_graph_timestamps": new_graphs}})
 		else:
 			unmatched_stories.update({story_id: {'overlap': overlap}})
+		
+		stories_uri_dts[chosensgtk_story_id] = set()			
 
 	map_cachestories["matched_stories"] = matched_stories
 	map_cachestories["unmatched_stories"] = unmatched_stories
