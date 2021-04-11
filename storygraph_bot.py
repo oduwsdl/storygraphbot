@@ -130,9 +130,9 @@ def map_cache_stories(cache, data, date):
 
 		if last_cache:
 			map_cachestories, topstory_incache, cache = multiday_mapper(cache,data,last_cache, multiday_start_date, date)
-			#json.dump(cache, open(f'test_cache.json', 'w'))
-			#print(map_cachestories)				
+			#print(map_cachestories)	
 
+	json.dump(cache, open(f'test_cache.json', 'w'))			
 	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
 
@@ -159,6 +159,8 @@ def multiday_mapper(cache,data,last_cache, multiday_start_date, date):
 
 
 	#check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
+	updated_map_cachestories_multiday ={"matched_stories":{}, "unmatched_stories":{}}
+
 	intermidiate_cache = create_new_cache(date)
 	intermidiate_cache_stories = intermidiate_cache[date]['stories']
 	for story_id, update in map_cachestories_multiday["matched_stories"].items():
@@ -177,18 +179,19 @@ def multiday_mapper(cache,data,last_cache, multiday_start_date, date):
 				last_story_cache, c_indx = get_story_cache(story_id, last_cache_stories)
 				cache[date]['stories'].append(last_story_cache)
 
+				#add stories with new updates to updated multiday mapper dictionary
+				updated_map_cachestories_multiday["matched_stories"].update({story_id:update})				
+
 
 	#map intermidiate_cache with current data
-	updated_map_cachestories_multiday ={}
+	del(map_cachestories_multiday)
 	if intermidiate_cache_stories != []:
 		stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
 		intermcachedstories_uri_dts = get_stories_uri_datetimes(intermidiate_cache, date)
 		map_cachestories_interm, topstory_incache = mapper(intermcachedstories_uri_dts, stories_uri_dts, intermidiate_cache_stories)
 		for story_id, update in map_cachestories_interm["matched_stories"].items():
 			data_overlap = update['overlap']
-			map_cachestories_multiday["matched_stories"][story_id]["overlap"] = data_overlap
-			updated_map_cachestories_multiday = map_cachestories_multiday
-			del(map_cachestories_multiday)
+			updated_map_cachestories_multiday["matched_stories"][story_id]["overlap"] = data_overlap
 
 
 	return(updated_map_cachestories_multiday, topstory_incache, cache)
