@@ -158,9 +158,10 @@ def multiday_mapper(cache,data,last_cache, multiday_start_date, date):
 	del topstory_incache_multiday
 
 
-	#check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
+	#updated multiday mapper which will only include updated stories
 	updated_map_cachestories_multiday ={"matched_stories":{}, "unmatched_stories":{}}
 
+	#check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
 	intermidiate_cache = create_new_cache(date)
 	intermidiate_cache_stories = intermidiate_cache[date]['stories']
 	for story_id, update in map_cachestories_multiday["matched_stories"].items():
