@@ -132,7 +132,7 @@ def map_cache_stories(cache, data, date):
 			map_cachestories, topstory_incache, cache = multiday_mapper(cache,data,last_cache, multiday_start_date, date)
 			#print(map_cachestories)	
 
-	json.dump(cache, open(f'test_cache.json', 'w'))			
+	#json.dump(cache, open(f'test_cache.json', 'w'))			
 	mapper_update(map_cachestories, data, date)
 	return(map_cachestories, topstory_incache)
 
