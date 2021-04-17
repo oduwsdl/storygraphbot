@@ -8,8 +8,12 @@ from datetime import datetime, timedelta
 
 from storygraph_bot.util import check_cache_exist
 from storygraph_bot.util import create_new_cache
+from storygraph_bot.util import get_cache
+from storygraph_bot.util import get_storygraph_stories
+from storygraph_bot.util import generic_error_info
 from storygraph_bot.util import overlap_stories
 from storygraph_bot.util import post_story
+from storygraph_bot.util import pretty_print_graph
 
 logger = logging.getLogger('sgbot.sgbot')
 
@@ -229,3 +233,73 @@ def update_story(story_id, update, cache_stories, stories):
         story_data["reported_graphs"].append(latest_graph)                                                    
         cache_stories[c_indx] = story_data                 
         return(True)    
+
+def console_log_stories(cache_stories):
+    '''print stories on console'''
+    print("\nAll Stories:\n")
+    for story in cache_stories:    
+        story_id = story["story_id"]
+        reported_graphs = story["reported_graphs"]
+
+        formatted_story = pretty_print_graph(story_id, reported_graphs[-1])
+        for k,v in formatted_story.items(): 
+            print(f'\t{k}: {v}')
+
+        if len(reported_graphs) > 1:    
+            print(f'\t\tHistory:')
+            for graph in reported_graphs[:-1]:
+                formatted_story = pretty_print_graph(story_id, graph)
+                for k,v in formatted_story.items():
+                    if k!="Story ID": 
+                        print(f'\t\t\t{k}: {v}')
+                print('')        
+        print('')
+
+def setup_storage(stories_path):
+
+    try:
+        os.makedirs( stories_path + '/cache', exist_ok=True )
+        os.makedirs( stories_path + '/tmp', exist_ok=True )
+        os.makedirs( stories_path + '/tracked_stories', exist_ok=True )
+    except:
+        generic_error_info()
+        return False
+
+    return True
+
+def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_datetime, **kwargs):
+
+    if( setup_storage(sgbot_path) is False ):
+        return
+
+    print('Sgbot Path:', sgbot_path)
+    print("Activation degree: "+str(activation_degree))
+    print("Overlap threshold: "+str(overlap_threshold))
+
+    data = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
+    if "story_clusters" not in data:
+        print("No stories in the new data")
+        return
+
+    date = list(data["story_clusters"])[0]      
+    cache = get_cache(sgbot_path, date)
+    cache_stories = cache[date]['stories']
+    stories = data["story_clusters"][date]["stories"]    
+
+    #match stories
+    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, data, date)
+
+    #new top story    
+    new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, date)
+    print(f'New top story id: {new_story_id}')
+    
+    #update tracking stories
+    updated_ids = update_handler(cache_stories, stories, map_cachestories)    
+    print(f'Updates of previous stories: {updated_ids}')
+
+    #dump_cache 
+    cache[date]["end_datetime"] = data["end_date"]
+    json.dump(cache, open(f'{sgbot_path}/cache/cache_{date}.json', 'w'))    
+
+    #print stories on console
+    console_log_stories(cache_stories)

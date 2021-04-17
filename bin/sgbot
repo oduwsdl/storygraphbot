@@ -5,37 +5,10 @@ import logging
 import os
 import sys
 
-from storygraph_bot.backbone import map_cache_stories
-from storygraph_bot.backbone import newstory_handler
-from storygraph_bot.backbone import update_handler
-
+from storygraph_bot.backbone import sgbot
 from storygraph_bot.util import generic_error_info
-from storygraph_bot.util import get_cache
-from storygraph_bot.util import get_storygraph_stories
-from storygraph_bot.util import pretty_print_graph
 
 logger = logging.getLogger('sgbot.sgbot')
-
-def console_log_stories(cache_stories):
-    '''print stories on console'''
-    print("\nAll Stories:\n")
-    for story in cache_stories:    
-        story_id = story["story_id"]
-        reported_graphs = story["reported_graphs"]
-
-        formatted_story = pretty_print_graph(story_id, reported_graphs[-1])
-        for k,v in formatted_story.items(): 
-            print(f'\t{k}: {v}')
-
-        if len(reported_graphs) > 1:    
-            print(f'\t\tHistory:')
-            for graph in reported_graphs[:-1]:
-                formatted_story = pretty_print_graph(story_id, graph)
-                for k,v in formatted_story.items():
-                    if k!="Story ID": 
-                        print(f'\t\t\t{k}: {v}')
-                print('')        
-        print('')
 
 def cleanup(stories_path, verify_deletion=True):
 
@@ -57,65 +30,17 @@ def cleanup(stories_path, verify_deletion=True):
         except:
             generic_error_info()
 
-def setup_storage(stories_path):
-
-    try:
-        os.makedirs( stories_path + '/cache', exist_ok=True )
-        os.makedirs( stories_path + '/tmp', exist_ok=True )
-        os.makedirs( stories_path + '/tracked_stories', exist_ok=True )
-    except:
-        generic_error_info()
-        return False
-
-    return True
-
 def get_generic_args():
-    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Query StoryGraphbot')
-    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')
-    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs based on datetime')    
+    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Bot that tracks and tweets about developing stories in near-realtime.')
+    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')
+    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')    
     
-    parser.add_argument('-a','--activation-degree', dest='activation_degree', default=4.0, type=float, help='The criteria for filtering top stories of the day')
-    parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermidiate files')
-    parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The criteria for matching two stories')
-    parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path to be used for all bot-associated operations (e.g., storing stories)')
+    parser.add_argument('-a','--activation-degree', dest='activation_degree', default=4.0, type=float, help='The minimum average degree for selected top stories.')
+    parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermediate files.')
+    parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The similarity threshold for matching two stories.')
+    parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
 
     return(parser)
-
-def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_datetime, **kwargs):
-
-    if( setup_storage(sgbot_path) is False ):
-        return
-
-    print('Sgbot Path:', sgbot_path)
-    print("Activation degree: "+str(activation_degree))
-    print("Overlap threshold: "+str(overlap_threshold))
-
-    data = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
-    if "story_clusters" not in data:
-        sys.exit("No stories in the new data")
-
-    date = list(data["story_clusters"])[0]      
-    cache = get_cache(sgbot_path, date)
-    cache_stories = cache[date]['stories']
-    stories = data["story_clusters"][date]["stories"]    
-
-    #match stories
-    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, data, date)
-
-    #new top story    
-    new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, date)
-    print(f'New top story id: {new_story_id}')
-    
-    #update tracking stories
-    updated_ids = update_handler(cache_stories, stories, map_cachestories)    
-    print(f'Updates of previous stories: {updated_ids}')
-
-    #dump_cache 
-    cache[date]["end_datetime"] = data["end_date"]
-    json.dump(cache, open(f'{sgbot_path}/cache/cache_{date}.json', 'w'))    
-
-    #print stories on console
-    console_log_stories(cache_stories)
 
 def main():
 
