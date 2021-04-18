@@ -194,11 +194,11 @@ def new_story(sgbot_path, top_story, cache_stories, date):
     cache_stories.append(top_story)     
     return(story_id)
 
-def update_handler(cache_stories, stories, map_cachestories):
+def update_handler(sgbot_path, cache_stories, stories, map_cachestories):
     updated_ids = []
     if map_cachestories:       
         for story_id, update in map_cachestories["matched_stories"].items():
-            is_updated = update_story(story_id, update, cache_stories, stories)
+            is_updated = update_story(sgbot_path, story_id, update, cache_stories, stories)
             if is_updated:
                 updated_ids.append(story_id)    
 
@@ -294,7 +294,7 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     print(f'New top story id: {new_story_id}')
     
     #update tracking stories
-    updated_ids = update_handler(cache_stories, stories, map_cachestories)    
+    updated_ids = update_handler(sgbot_path, cache_stories, stories, map_cachestories)    
     print(f'Updates of previous stories: {updated_ids}')
 
     #dump_cache 
