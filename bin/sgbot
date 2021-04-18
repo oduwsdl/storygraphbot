@@ -7,6 +7,8 @@ import sys
 
 from storygraph_bot.backbone import sgbot
 from storygraph_bot.util import generic_error_info
+from storygraph_bot.util import set_log_defaults
+from storygraph_bot.util import set_logger_dets
 
 logger = logging.getLogger('sgbot.sgbot')
 
@@ -37,6 +39,11 @@ def get_generic_args():
     
     parser.add_argument('-a','--activation-degree', dest='activation_degree', default=4.0, type=float, help='The minimum average degree for selected top stories.')
     parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermediate files.')
+
+    parser.add_argument('--log-file', default='', help='Log output filename')
+    parser.add_argument('--log-format', default='', help='Log print format, see: https://docs.python.org/3/howto/logging-cookbook.html')
+    parser.add_argument('--log-level', default='info', choices=['critical', 'error', 'warning', 'info', 'debug', 'notset'], help='Log level')
+
     parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The similarity threshold for matching two stories.')
     parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
 
@@ -56,6 +63,10 @@ def main():
         cleanup(args.sgbot_path)
         return
     
+    params = vars(args)
+    set_log_defaults( params )
+    set_logger_dets( logger, params['log_dets'] )
+
     sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime)
 
 if __name__ == "__main__":

@@ -5,6 +5,81 @@ import sys
 
 logger = logging.getLogger('sgbot.sgbot')
 
+def proc_log_handler(handler, logger_dets):
+    
+    if( handler is None ):
+        return
+        
+    if( 'level' in logger_dets ):
+        handler.setLevel( logger_dets['level'] )    
+        
+        if( logger_dets['level'] == logging.ERROR ):
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s :\n%(message)s')
+            handler.setFormatter(formatter)
+
+    if( 'format' in logger_dets ):
+        
+        logger_dets['format'] = logger_dets['format'].strip()
+        if( logger_dets['format'] != '' ):
+            formatter = logging.Formatter( logger_dets['format'] )
+            handler.setFormatter(formatter)
+
+    logger.addHandler(handler)
+
+def set_logger_dets(logger, logger_dets):
+
+    if( len(logger_dets) == 0 ):
+        return
+
+    console_handler = logging.StreamHandler()
+
+    if( 'level' in logger_dets ):
+        logger.setLevel( logger_dets['level'] )
+    else:
+        logger.setLevel( logging.INFO )
+
+    if( 'file' in logger_dets ):
+        logger_dets['file'] = logger_dets['file'].strip()
+        
+        if( logger_dets['file'] != '' ):
+            file_handler = logging.FileHandler( logger_dets['file'] )
+            proc_log_handler(file_handler, logger_dets)
+
+    proc_log_handler(console_handler, logger_dets)
+
+def set_log_defaults(params):
+    
+    params['log_dets'] = {}
+
+    if( params['log_level'] == '' ):
+        params['log_dets']['level'] = logging.INFO
+    else:
+        
+        log_levels = {
+            'CRITICAL': 50,
+            'ERROR': 40,
+            'WARNING': 30,
+            'INFO': 20,
+            'DEBUG': 10,
+            'NOTSET': 0
+        }
+
+        params['log_level'] = params['log_level'].strip().upper()
+
+        if( params['log_level'] in log_levels ):
+            params['log_dets']['level'] = log_levels[ params['log_level'] ]
+        else:
+            params['log_dets']['level'] = logging.INFO
+    
+    params['log_format'] = params['log_format'].strip()
+    params['log_file'] = params['log_file'].strip()
+
+    if( params['log_format'] != '' ):
+        params['log_dets']['format'] = params['log_format']
+
+    if( params['log_file'] != '' ):
+        params['log_dets']['file'] = params['log_file']
+
 def generic_error_info(slug=''):
     exc_type, exc_obj, exc_tb = sys.exc_info()
     fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -18,7 +93,7 @@ def get_dct_frm_json(json_str):
     try:
         return json.loads(json_str)
     except:
-        generic_error_info('\tjsonStr prefix: ' + json_str[:100])
+        generic_error_info('\tError: json_str prefix: ' + json_str[:100])
     return {}
 
 def read_txt_frm_file(infilename):
@@ -28,7 +103,7 @@ def read_txt_frm_file(infilename):
         with open(infilename, 'r') as infile:
             text = infile.read()
     except:
-        generic_error_info('\tread_txt_frm_file() error filename: ' + infilename)
+        generic_error_info('\tError: read_txt_frm_file() filename: ' + infilename)
     
     return text
 
@@ -39,7 +114,7 @@ def get_dict_frm_file(filename):
             return {}
         return get_dct_frm_json( read_txt_frm_file(filename) )
     except:
-        generic_error_info('\tget_dict_frm_file(): error filename ' + filename)
+        generic_error_info('\tError: get_dict_frm_file(): filename ' + filename)
     return {}
 
 def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params=None):
@@ -62,7 +137,7 @@ def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params
         if( extra_params['verbose'] is True ):
             logger.info('\tdump_json_to_file(), wrote: ' + outfilename)
     except:
-        generic_error_info('\n\terror: outfilename: ' + outfilename)
+        generic_error_info('\n\tError: outfilename: ' + outfilename)
         return False
 
     return True
@@ -71,29 +146,28 @@ def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params
 
 def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):
     
+    data = {}
     try:
         cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output.log  2>&1')
         a = os.system(cmd)
-        read_file = open(f"{sgbot_path}/tmp/current_storygraphdata.json", "r")
-        data = json.load(read_file)
+        data = get_dict_frm_file( f"{sgbot_path}/tmp/current_storygraphdata.json" )
     except FileNotFoundError as e:
-        sys.exit('Please install storygraph-toolkit: https://github.com/oduwsdl/storygraph-toolkit.git')
+        logger.error('Please install storygraph-toolkit: https://github.com/oduwsdl/storygraph-toolkit.git')
     
     return(data)
 
 def check_cache_exist(sgbot_path, date):
     cache_filename = f'{sgbot_path}/cache/cache_{date}.json'
-    if os.path.isfile(cache_filename):
-        cache = json.load(open(cache_filename, "r"))
-        return(cache)
+    cache = get_dict_frm_file(cache_filename)
+    if( len(cache) == 0 ):
+        return(False)
     else:
-        return(False)    
+        return(cache)  
 
 def get_cache(sgbot_path, date):
     cache = check_cache_exist(sgbot_path, date)
     if not cache:
         cache = create_new_cache(date)
-        #print("New cache initiated")
     return(cache)
 
 def create_new_cache(date):

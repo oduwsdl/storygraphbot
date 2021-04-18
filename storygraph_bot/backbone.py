@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 
 from storygraph_bot.util import check_cache_exist
 from storygraph_bot.util import create_new_cache
+from storygraph_bot.util import dump_json_to_file
 from storygraph_bot.util import get_cache
 from storygraph_bot.util import get_storygraph_stories
 from storygraph_bot.util import generic_error_info
@@ -86,7 +87,7 @@ def mapper_update(sgbot_path, map_cachestories, data, date):
         mapper_info = {}
 
     mapper_info[data["end_date"]] = map_cachestories        
-    json.dump(mapper_info, open(mapper_file, 'w'))
+    dump_json_to_file( mapper_file, mapper_info, indent_flag=False, extra_params={'verbose': False} )
 
 def map_cache_stories(sgbot_path, overlap_threshold, cache, data, date):
     cache_stories = cache[date]['stories']
@@ -109,7 +110,7 @@ def map_cache_stories(sgbot_path, overlap_threshold, cache, data, date):
             map_cachestories, topstory_incache, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, multiday_start_date, date)
             #print(map_cachestories)    
 
-    #json.dump(cache, open(f'test_cache.json', 'w'))            
+            
     mapper_update(sgbot_path, map_cachestories, data, date)
     return(map_cachestories, topstory_incache)
 
@@ -235,25 +236,25 @@ def update_story(sgbot_path, story_id, update, cache_stories, stories):
         return(True)    
 
 def console_log_stories(cache_stories):
-    '''print stories on console'''
-    print("\nAll Stories:\n")
+    
+    logger.info('\nAll Stories:\n')
     for story in cache_stories:    
         story_id = story["story_id"]
         reported_graphs = story["reported_graphs"]
 
         formatted_story = pretty_print_graph(story_id, reported_graphs[-1])
         for k,v in formatted_story.items(): 
-            print(f'\t{k}: {v}')
+            logger.info(f'\t{k}: {v}')
 
         if len(reported_graphs) > 1:    
-            print(f'\t\tHistory:')
+            logger.info(f'\t\tHistory:')
             for graph in reported_graphs[:-1]:
                 formatted_story = pretty_print_graph(story_id, graph)
                 for k,v in formatted_story.items():
                     if k!="Story ID": 
-                        print(f'\t\t\t{k}: {v}')
-                print('')        
-        print('')
+                        logger.info(f'\t\t\t{k}: {v}')
+                logger.info('')        
+        logger.info('')
 
 def setup_storage(stories_path):
 
@@ -272,13 +273,11 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     if( setup_storage(sgbot_path) is False ):
         return {}
 
-    print('Sgbot Path:', sgbot_path)
-    print("Activation degree: "+str(activation_degree))
-    print("Overlap threshold: "+str(overlap_threshold))
+    logger.info(f'Sgbot Path: {sgbot_path}\nActivation degree: {activation_degree}\nOverlap threshold: {overlap_threshold}')
 
     data = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
-    if "story_clusters" not in data:
-        print("No stories in the new data")
+    if 'story_clusters' not in data:
+        logger.info('No stories returned by storygraph-toolkit')
         return {}
 
     date = list(data["story_clusters"])[0]      
@@ -291,15 +290,15 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
 
     #new top story    
     new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, date)
-    print(f'New top story id: {new_story_id}')
+    logger.info(f'New top story id: {new_story_id}')
     
     #update tracking stories
     updated_ids = update_handler(sgbot_path, cache_stories, stories, map_cachestories)    
-    print(f'Updates of previous stories: {updated_ids}')
+    logger.info(f'Updates of previous stories: {updated_ids}')
 
     #dump_cache 
     cache[date]["end_datetime"] = data["end_date"]
-    json.dump(cache, open(f'{sgbot_path}/cache/cache_{date}.json', 'w'))    
+    dump_json_to_file( f'{sgbot_path}/cache/cache_{date}.json', cache, indent_flag=False, extra_params={'verbose': False} ) 
 
     #print stories on console
     console_log_stories(cache_stories)
