@@ -14,7 +14,63 @@ def generic_error_info(slug=''):
 
     return err_msg
 
+def get_dct_frm_json(json_str):
+    try:
+        return json.loads(json_str)
+    except:
+        generic_error_info('\tjsonStr prefix: ' + json_str[:100])
+    return {}
+
+def read_txt_frm_file(infilename):
+    
+    text = ''
+    try:
+        with open(infilename, 'r') as infile:
+            text = infile.read()
+    except:
+        generic_error_info('\tread_txt_frm_file() error filename: ' + infilename)
+    
+    return text
+
+def get_dict_frm_file(filename):
+
+    try:
+        if( os.path.exists(filename) is False ):
+            return {}
+        return get_dct_frm_json( read_txt_frm_file(filename) )
+    except:
+        generic_error_info('\tget_dict_frm_file(): error filename ' + filename)
+    return {}
+
+def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params=None):
+
+    if( extra_params is None ):
+        extra_params = {}
+
+    extra_params.setdefault('verbose', True)
+
+    try:
+        outfile = open(outfilename, 'w')
+        
+        if( indent_flag is True ):
+            json.dump(dict_to_write, outfile, ensure_ascii=False, indent=4)#by default, ensure_ascii=True, and this will cause  all non-ASCII characters in the output are escaped with \uXXXX sequences, and the result is a str instance consisting of ASCII characters only. Since in python 3 all strings are unicode by default, forcing ascii is unecessary
+        else:
+            json.dump(dict_to_write, outfile, ensure_ascii=False)
+
+        outfile.close()
+
+        if( extra_params['verbose'] is True ):
+            logger.info('\tdump_json_to_file(), wrote: ' + outfilename)
+    except:
+        generic_error_info('\n\terror: outfilename: ' + outfilename)
+        return False
+
+    return True
+
+
+
 def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):
+    
     try:
         cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output.log  2>&1')
         a = os.system(cmd)
@@ -22,6 +78,7 @@ def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):
         data = json.load(read_file)
     except FileNotFoundError as e:
         sys.exit('Please install storygraph-toolkit: https://github.com/oduwsdl/storygraph-toolkit.git')
+    
     return(data)
 
 def check_cache_exist(sgbot_path, date):
@@ -87,3 +144,4 @@ def post_story(sgbot_path, story_id, story_graph):
     for k,v in formatted_graph.items(): 
         story_file.write("{}:{}\n".format(k,v))            
     story_file.write("\n")
+    story_file.close()

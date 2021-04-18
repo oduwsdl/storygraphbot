@@ -208,7 +208,7 @@ def update_handler(cache_stories, stories, map_cachestories):
         updated_ids = ', '.join(updated_ids)
     return(updated_ids)    
 
-def update_story(story_id, update, cache_stories, stories):
+def update_story(sgbot_path, story_id, update, cache_stories, stories):
     story_cache, c_indx = get_story_cache(story_id, cache_stories)
     data_sidx = update["overlap"][0]['sgtk_story_id']
     new_graphs = update['new_graph_timestamps']
@@ -226,7 +226,7 @@ def update_story(story_id, update, cache_stories, stories):
             l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
             latest_graph = l_id[0]
         
-        post_story(story_id, latest_graph)    
+        post_story(sgbot_path, story_id, latest_graph)    
         #update_cache
         story_data["story_id"] = story_id    
         story_data["reported_graphs"] = story_cache["reported_graphs"]                                                
@@ -270,7 +270,7 @@ def setup_storage(stories_path):
 def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_datetime, **kwargs):
 
     if( setup_storage(sgbot_path) is False ):
-        return
+        return {}
 
     print('Sgbot Path:', sgbot_path)
     print("Activation degree: "+str(activation_degree))
@@ -279,7 +279,7 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     data = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
     if "story_clusters" not in data:
         print("No stories in the new data")
-        return
+        return {}
 
     date = list(data["story_clusters"])[0]      
     cache = get_cache(sgbot_path, date)
@@ -303,3 +303,11 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
 
     #print stories on console
     console_log_stories(cache_stories)
+    return {
+        'new_story_id': new_story_id,
+        'updated_ids': updated_ids,
+        'cache_stories': cache_stories
+    }
+
+
+
