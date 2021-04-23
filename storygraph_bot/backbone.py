@@ -20,6 +20,13 @@ logger = logging.getLogger('sgbot.sgbot')
 
 def get_stories_uri_datetimes(jdata, date): 
     #extract graph_uri_local_datetime from data(list of list) 
+
+    if( date not in jdata ):
+        return []
+
+    if( 'stories' not in jdata[date] ):
+        return []
+
     stories_uri_datetimes = []
     for story in jdata[date]["stories"]:
         story_uri_datetimes = set([graph["graph_uri_local_datetime"] for graph in story["graph_ids"]])
@@ -33,7 +40,14 @@ def get_story_cache(story_id, cache_stories):
             return(story, indx)
 
 def get_topstory(activation_degree, stories):
+
+    if( len(stories) == 0 ):
+        return
     top_story = stories[0]        
+
+    if( 'max_avg_degree' not in top_story ):
+        return
+
     #check activation degree
     c = top_story["max_avg_degree"] > activation_degree
     if c:
@@ -41,10 +55,12 @@ def get_topstory(activation_degree, stories):
 
 #this function should be renamed to a more specifc name
 def mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stories):
+    
+    topstory_incache = False
     map_cachestories = {}     
-    topstory_incache = False    
     matched_stories = {}
     unmatched_stories = {}
+
     for c_indx in range(len(cachedstories_uri_dts)):
         cs_uridt = cachedstories_uri_dts[c_indx]
         story_id = cache_stories[c_indx]["story_id"]
@@ -86,7 +102,9 @@ def mapper_update(sgbot_path, map_cachestories, data, date):
     else:
         mapper_info = {}
 
-    mapper_info[data["end_date"]] = map_cachestories        
+    if( 'end_date' in data ):
+        mapper_info[data['end_date']] = map_cachestories
+
     dump_json_to_file( mapper_file, mapper_info, indent_flag=False, extra_params={'verbose': False} )
 
 def map_cache_stories(sgbot_path, overlap_threshold, cache, data, date):
@@ -136,7 +154,7 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
 
 
     #updated multiday mapper which will only include updated stories
-    updated_map_cachestories_multiday ={"matched_stories":{}, "unmatched_stories":{}}
+    updated_map_cachestories_multiday={"matched_stories":{}, "unmatched_stories":{}}
 
     #check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
     intermidiate_cache = create_new_cache(date)

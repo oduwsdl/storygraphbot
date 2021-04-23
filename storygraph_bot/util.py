@@ -164,6 +164,29 @@ def check_cache_exist(sgbot_path, date):
     else:
         return(cache)  
 
+def cleanup(stories_path, verify_deletion=True):
+
+    if( os.path.exists(stories_path) is False ):
+        return
+
+    try:
+        print('Files to be deleted:')
+        os.system(f'ls {stories_path}/cache/cache_* {stories_path}/tmp/*.json {stories_path}/tmp/console_output.log {stories_path}/tracked_stories/*.txt')
+    except:
+        generic_error_info()
+
+    if( verify_deletion is True ):
+        remove = input("Are you sure you want to delete cache? y or n\n")
+    else:
+        remove = 'y'
+
+    if remove in ['y','yes']:
+        try:
+            os.system(f'rm -f {stories_path}/cache/cache_* {stories_path}/tmp/*.json {stories_path}/tmp/console_output.log {stories_path}/tracked_stories/*.txt')
+            print('Deleted!')
+        except:
+            generic_error_info()
+
 def get_cache(sgbot_path, date):
     cache = check_cache_exist(sgbot_path, date)
     if not cache:
@@ -171,12 +194,9 @@ def get_cache(sgbot_path, date):
     return(cache)
 
 def create_new_cache(date):
-    #current_date = datetime.today().strftime('%Y-%m-%d')
-    current_date = date
-    #current_datetime = datetime.today().strftime('%Y-%m-%d-%H:%M:%S')
     cache = {
-        current_date: {  
-            "start_datetime": current_date + ' 00:00:00',
+        date: {  
+            "start_datetime": date + ' 00:00:00',
             "end_datetime": "",
             "stories": []
         }
@@ -196,26 +216,32 @@ def pretty_print_graph(story_id, story_graph):
     #format graph
     formatted_graph = {
         "Story ID" : story_id,
-        "Title" : story_graph['max_node_title'],        
-        "Avg Degree" : story_graph['avg_degree'],
-        "Graph URI": story_graph['graph_uri']
+        "Title" : story_graph.get('max_node_title', ''),        
+        "Avg Degree" : story_graph.get('avg_degree', ''),
+        "Graph URI": story_graph.get('graph_uri', '')
     }    
     return(formatted_graph)
 
 def post_story(sgbot_path, story_id, story_graph):
+
     '''Post story to file'''
-    story_fname = f'{sgbot_path}/tracked_stories/{story_id}.txt'
-    if os.path.exists(story_fname):
-        mode = 'a+' 
-    else:
-        mode = 'w+'
-    story_file = open(story_fname, mode)
+    try:
 
-    #format graph
-    formatted_graph = pretty_print_graph(story_id, story_graph)    
+        story_fname = f'{sgbot_path}/tracked_stories/{story_id}.txt'
+        if os.path.exists(story_fname):
+            mode = 'a+' 
+        else:
+            mode = 'w+'
+        story_file = open(story_fname, mode)
 
-    #print story to file        
-    for k,v in formatted_graph.items(): 
-        story_file.write("{}:{}\n".format(k,v))            
-    story_file.write("\n")
-    story_file.close()
+        #format graph
+        formatted_graph = pretty_print_graph(story_id, story_graph)    
+
+        #print story to file        
+        for k,v in formatted_graph.items(): 
+            story_file.write("{}:{}\n".format(k,v))            
+        
+        story_file.write("\n")
+        story_file.close()
+    except:
+        generic_error_info()

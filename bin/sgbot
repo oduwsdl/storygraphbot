@@ -6,31 +6,12 @@ import os
 import sys
 
 from storygraph_bot.backbone import sgbot
+from storygraph_bot.util import cleanup
 from storygraph_bot.util import generic_error_info
 from storygraph_bot.util import set_log_defaults
 from storygraph_bot.util import set_logger_dets
 
 logger = logging.getLogger('sgbot.sgbot')
-
-def cleanup(stories_path, verify_deletion=True):
-
-    try:
-        print('Files to be deleted:')
-        os.system(f'ls {stories_path}/cache/cache_* {stories_path}/tmp/*.json {stories_path}/tmp/console_output.log {stories_path}/tracked_stories/*.txt')
-    except:
-        generic_error_info()
-
-    if( verify_deletion is True ):
-        remove = input("Are you sure you want to delete cache? y or n\n")
-    else:
-        remove = 'y'
-
-    if remove in ['y','yes']:
-        try:
-            os.system(f'rm -f {stories_path}/cache/cache_* {stories_path}/tmp/*.json {stories_path}/tmp/console_output.log {stories_path}/tracked_stories/*.txt')
-            print('Deleted!')
-        except:
-            generic_error_info()
 
 def get_generic_args():
     parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Bot that tracks and tweets about developing stories in near-realtime.')
