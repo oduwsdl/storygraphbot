@@ -56,13 +56,21 @@ class TestSGBot(unittest.TestCase):
 
         cases = [
             {
-                'start_datetime': '2020-06-10 00:00:00',
-                'end_datetime': '2020-06-10 06:00:00',
-                'expected_new_story_id': '20200610_0',
+                'start_datetime': '2020-10-06 00:00:00',
+                'end_datetime': '2020-10-06 01:00:00',
+                'expected_new_story_id': '20201006_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=24&hist=1440&t=2020-06-10T04:05:38'
-            }
+                'expected_g_uri': 'http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=26&hist=1440&t=2020-10-06T04:20:07'
+            },
+            {
+                'start_datetime': '2020-10-06 00:00:00',
+                'end_datetime': '2020-10-06 06:00:00',
+                'expected_new_story_id': None,
+                'expected_updated_ids': '20201006_0',
+                'story_indx': 0,
+                'expected_g_uri': 'http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=37&hist=1440&t=2020-10-06T06:11:01'
+            },
         ]
 
         cleanup(TestSGBot.sgbot_path, verify_deletion=False)
