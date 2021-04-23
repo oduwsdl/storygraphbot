@@ -10,6 +10,7 @@ from storygraph_bot.util import check_cache_exist
 from storygraph_bot.util import create_new_cache
 from storygraph_bot.util import dump_json_to_file
 from storygraph_bot.util import get_cache
+from storygraph_bot.util import get_dict_frm_file
 from storygraph_bot.util import get_storygraph_stories
 from storygraph_bot.util import generic_error_info
 from storygraph_bot.util import overlap_stories
@@ -95,7 +96,7 @@ def mapper_update(sgbot_path, map_cachestories, data, date):
     mapper_file = f'{sgbot_path}/tmp/story_updates_{date}.json'
     if os.path.isfile(mapper_file):
         try:
-            mapper_info = json.load(open(mapper_file, "r"))
+            mapper_info = get_dict_frm_file(mapper_file)#json.load(open(mapper_file, "r"))
         except Exception as e:
             print(f"Error: Please clear the {mapper_file} created in earlier test run. cmd: rm -f {mapper_file}")
             sys.exit()
@@ -141,7 +142,7 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
     multiday_start_datetime = f'{multiday_start_date} 00:00:00'
     cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/multi-day-clust.json maxgraph --multiday-cluster --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{multiday_start_datetime}" --end-datetime="{args.end_datetime}" > {sgbot_path}/tmp/console_output_multiday.log  2>&1')
     a = os.system(cmd)
-    multiday_data = json.load(open(f'{sgbot_path}/tmp/multi-day-clust.json', "r"))
+    multiday_data = get_dict_frm_file(f'{sgbot_path}/tmp/multi-day-clust.json')#json.load(open(f'{sgbot_path}/tmp/multi-day-clust.json', "r"))
 
 
     #map last_cache with multiday_data 
