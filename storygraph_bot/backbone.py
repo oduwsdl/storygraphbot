@@ -91,9 +91,9 @@ def mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stor
     return(map_cachestories, topstory_incache)
 
 #data and date needs to be renamed tomore specific names
-def mapper_update(sgbot_path, map_cachestories, data, date):
+def mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date):
     ''' mapping json shows the update on the tracked stories at each timestamp'''
-    mapper_file = f'{sgbot_path}/tmp/story_updates_{date}.json'
+    mapper_file = f'{sgbot_path}/tmp/story_updates_{cur_story_date}.json'
     if os.path.isfile(mapper_file):
         try:
             mapper_info = get_dict_frm_file(mapper_file)
@@ -103,38 +103,38 @@ def mapper_update(sgbot_path, map_cachestories, data, date):
     else:
         mapper_info = {}
 
-    if( 'end_date' in data ):
-        mapper_info[data['end_date']] = map_cachestories
+    if( 'end_date' in sg_stories ):
+        mapper_info[sg_stories['end_date']] = map_cachestories
 
     dump_json_to_file( mapper_file, mapper_info, indent_flag=False, extra_params={'verbose': False} )
 
-def map_cache_stories(sgbot_path, overlap_threshold, cache, data, date):
-    cache_stories = cache[date]['stories']
+def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date):
+    cache_stories = cache[cur_story_date]['stories']
 
     if cache_stories != []:
-        stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
-        cachedstories_uri_dts = get_stories_uri_datetimes(cache, date)
+        stories_uri_dts =  get_stories_uri_datetimes(sg_stories["story_clusters"], cur_story_date)
+        cachedstories_uri_dts = get_stories_uri_datetimes(cache, cur_story_date)
         #if cachedstories_uri_dts != []    :
         map_cachestories, topstory_incache = mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stories)
 
     else:
         map_cachestories = {}     
         topstory_incache = False
-        multiday_start_date = datetime.strptime(date, "%Y-%m-%d").date() - timedelta(days=1)
+        multiday_start_date = datetime.strptime(cur_story_date, "%Y-%m-%d").date() - timedelta(days=1)
         multiday_start_datetime = f'{multiday_start_date} 00:00:00'
         #check if previous day cache exist
         last_cache = check_cache_exist(sgbot_path, multiday_start_date)
 
         if last_cache:
-            map_cachestories, topstory_incache, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, multiday_start_date, date)
+            map_cachestories, topstory_incache, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, cur_story_date)
             #print(map_cachestories)    
 
             
-    mapper_update(sgbot_path, map_cachestories, data, date)
+    mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date)
     return(map_cachestories, topstory_incache)
 
-#data and date needs to be renamed tomore specific names
-def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, multiday_start_date, date):    
+#data and cur_story_date needs to be renamed tomore specific names
+def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, multiday_start_date, cur_story_date):    
     topstory_incache = False
 
 
@@ -158,13 +158,13 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
     updated_map_cachestories_multiday={"matched_stories":{}, "unmatched_stories":{}}
 
     #check which stories have graph timestamp from new day and add those traversing stories to intermidiate cache
-    intermidiate_cache = create_new_cache(date)
-    intermidiate_cache_stories = intermidiate_cache[date]['stories']
+    intermidiate_cache = create_new_cache(cur_story_date)
+    intermidiate_cache_stories = intermidiate_cache[cur_story_date]['stories']
     for story_id, update in map_cachestories_multiday["matched_stories"].items():
         new_graphs = update['new_graph_timestamps']
         if new_graphs:
             latest_graph_uri = new_graphs[0]
-            if latest_graph_uri.startswith(date):
+            if latest_graph_uri.startswith(cur_story_date):
 
                 #get story from multiday_data
                 data_sidx = update["overlap"][0]['sgtk_story_id']
@@ -174,7 +174,7 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
 
                 #add last_day_cache of the story to new cache
                 last_story_cache, c_indx = get_story_cache(story_id, last_cache_stories)
-                cache[date]['stories'].append(last_story_cache)
+                cache[cur_story_date]['stories'].append(last_story_cache)
 
                 #add stories with new updates to updated multiday mapper dictionary
                 updated_map_cachestories_multiday["matched_stories"].update({story_id:update})                
@@ -183,8 +183,8 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
     #map intermidiate_cache with current data
     del(map_cachestories_multiday)
     if intermidiate_cache_stories != []:
-        stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], date)
-        intermcachedstories_uri_dts = get_stories_uri_datetimes(intermidiate_cache, date)
+        stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], cur_story_date)
+        intermcachedstories_uri_dts = get_stories_uri_datetimes(intermidiate_cache, cur_story_date)
         map_cachestories_interm, topstory_incache = mapper(overlap_threshold, intermcachedstories_uri_dts, stories_uri_dts, intermidiate_cache_stories)
         for story_id, update in map_cachestories_interm["matched_stories"].items():
             data_overlap = update['overlap']
@@ -193,17 +193,17 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
 
     return(updated_map_cachestories_multiday, topstory_incache, cache)
 
-def newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, date):
+def newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, cur_story_date):
     top_story = get_topstory(activation_degree, stories)
     new_story_id = None
     if top_story:        
         if not st0_incache:             #add story to cache
-            new_story_id = new_story(sgbot_path, top_story, cache_stories, date)
+            new_story_id = new_story(sgbot_path, top_story, cache_stories, cur_story_date)
     return(new_story_id)    
 
-def new_story(sgbot_path, top_story, cache_stories, date):
+def new_story(sgbot_path, top_story, cache_stories, cur_story_date):
     #print("Creating 1 new thread for new top story")            
-    story_id = f'{date.replace("-","")}_{len(cache_stories)}'
+    story_id = f'{cur_story_date.replace("-","")}_{len(cache_stories)}'
     top_story["story_id"] = story_id
     top_story["reported_graphs"] = []
     story_graph = top_story["graph_ids"][0]
@@ -323,24 +323,24 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
 
     logger.info(f'Sgbot Path: {sgbot_path}\nActivation degree: {activation_degree}\nOverlap threshold: {overlap_threshold}')
 
-    data = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
-    if 'story_clusters' not in data:
+    sg_stories = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
+    if 'story_clusters' not in sg_stories:
         logger.info('No stories returned by storygraph-toolkit')
         return {}
 
     kwargs.setdefault('update_cache', True)#cache is updated by default, but could be delayed (update_cache=False) when user (post tweet) needs to add information before cache is updated. User must ensure cache is updated
-    transfer_dets_frm_maxgraphs_to_story_clusters( data )
+    transfer_dets_frm_maxgraphs_to_story_clusters( sg_stories )
 
-    date = list(data["story_clusters"])[0]      
-    cache = get_cache(sgbot_path, date)
-    cache_stories = cache[date]['stories']
-    stories = data["story_clusters"][date]["stories"]    
+    cur_story_date = list(sg_stories["story_clusters"])[0]      
+    cache = get_cache(sgbot_path, cur_story_date)
+    cache_stories = cache[cur_story_date]['stories']
+    stories = sg_stories["story_clusters"][cur_story_date]["stories"]    
 
     #match stories
-    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, data, date)
+    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date)
 
     #new top story    
-    new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, date)
+    new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, cur_story_date)
     logger.info(f'New top story id: {new_story_id}')
     
     #update tracking stories
@@ -348,8 +348,8 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     logger.info(f'Updates of previous stories: {updated_ids}')
 
     #dump_cache 
-    cache_path = f'{sgbot_path}/cache/cache_{date}.json'
-    cache[date]["end_datetime"] = data["end_date"]
+    cache_path = f'{sgbot_path}/cache/cache_{cur_story_date}.json'
+    cache[cur_story_date]["end_datetime"] = sg_stories["end_date"]
 
     if( kwargs['update_cache'] is True ):
         dump_json_to_file( cache_path, cache, indent_flag=False, extra_params={'verbose': False} ) 

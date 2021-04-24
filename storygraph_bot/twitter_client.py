@@ -87,7 +87,6 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     if( graph_pos == 0 ):
         msg_start += '\n' + get_hashtag(story_date)
     
-
     return msg_start
 
 def post_tweet(stories, consumer_key, consumer_secret, access_token, access_token_secret, selected_dates=[], tweet_activation_degree=4, **kwargs):
@@ -103,6 +102,9 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
 
         return False
 
+    logger.info('\npost_tweet():')
+    logger.info(f'\ttweet_activation_degree: {tweet_activation_degree}')
+    
     def post_tweets_for_story(story, story_date):
 
         if( 'reported_graphs' not in story ):
