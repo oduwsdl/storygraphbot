@@ -108,7 +108,7 @@ def mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date):
 
     dump_json_to_file( mapper_file, mapper_info, indent_flag=False, extra_params={'verbose': False} )
 
-def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date):
+def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date, end_datetime):
     cache_stories = cache[cur_story_date]['stories']
 
     if cache_stories != []:
@@ -126,21 +126,20 @@ def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_stor
         last_cache = check_cache_exist(sgbot_path, multiday_start_date)
 
         if last_cache:
-            map_cachestories, topstory_incache, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, cur_story_date)
+            map_cachestories, topstory_incache, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, end_datetime, cur_story_date)
             #print(map_cachestories)    
 
             
     mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date)
     return(map_cachestories, topstory_incache)
 
-#data and cur_story_date needs to be renamed tomore specific names
-def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, multiday_start_date, cur_story_date):    
+def multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, end_datetime, cur_story_date):    
     topstory_incache = False
 
 
-    #get multiday data
+    #get multiday sg_stories
     multiday_start_datetime = f'{multiday_start_date} 00:00:00'
-    cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/multi-day-clust.json maxgraph --multiday-cluster --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{multiday_start_datetime}" --end-datetime="{args.end_datetime}" > {sgbot_path}/tmp/console_output_multiday.log  2>&1')
+    cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/multi-day-clust.json maxgraph --multiday-cluster --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{multiday_start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output_multiday.log  2>&1')
     a = os.system(cmd)
     multiday_data = get_dict_frm_file(f'{sgbot_path}/tmp/multi-day-clust.json')
 
@@ -180,10 +179,10 @@ def multiday_mapper(sgbot_path, overlap_threshold, cache, data, last_cache, mult
                 updated_map_cachestories_multiday["matched_stories"].update({story_id:update})                
 
 
-    #map intermidiate_cache with current data
+    #map intermidiate_cache with current sg_stories
     del(map_cachestories_multiday)
     if intermidiate_cache_stories != []:
-        stories_uri_dts =  get_stories_uri_datetimes(data["story_clusters"], cur_story_date)
+        stories_uri_dts =  get_stories_uri_datetimes(sg_stories["story_clusters"], cur_story_date)
         intermcachedstories_uri_dts = get_stories_uri_datetimes(intermidiate_cache, cur_story_date)
         map_cachestories_interm, topstory_incache = mapper(overlap_threshold, intermcachedstories_uri_dts, stories_uri_dts, intermidiate_cache_stories)
         for story_id, update in map_cachestories_interm["matched_stories"].items():
@@ -337,7 +336,7 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     stories = sg_stories["story_clusters"][cur_story_date]["stories"]    
 
     #match stories
-    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date)
+    map_cachestories, st0_incache = map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date, end_datetime)
 
     #new top story    
     new_story_id = newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_incache, cur_story_date)
