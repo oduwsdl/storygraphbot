@@ -73,6 +73,18 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     max_node_title = graph['max_node_title'].strip()
     max_node_title = max_node_title if len(max_node_title) <= 80 else max_node_title[:77] + '...'
 
+
+    d0 = story['reported_graphs'][0]['graph_uri_local_datetime']
+    d1 = story['reported_graphs'][-1]['graph_uri_local_datetime']
+    if( d0 == d1 ):
+        age = story['timedelta']
+    else:
+        d0 = datetime.strptime(d0, '%Y-%m-%dT%H:%M:%S')
+        d1 = datetime.strptime(d1, '%Y-%m-%dT%H:%M:%S')
+        age = str(d1 - d0)
+    age = age.split('.')[0]
+    
+
     link = graph['max_node_link']
     if( graph_pos == 0 ):
         msg_start = f'Breaking story ({story_date}): {max_node_title} ({link})\n\n'
@@ -81,7 +93,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
     msg_start += 'Average degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
-    msg_start += 'Age: {}'.format( story['timedelta'].split('.')[0] ) + '\n\n'
+    msg_start += 'Age: {}'.format(age) + '\n\n'
     msg_start += 'Graph: {}'.format( graph['graph_uri'] )
     
     if( graph_pos == 0 ):
@@ -104,7 +116,7 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
 
     logger.info('\npost_tweet():')
     logger.info(f'\ttweet_activation_degree: {tweet_activation_degree}')
-    
+
     def post_tweets_for_story(story, story_date):
 
         if( 'reported_graphs' not in story ):
