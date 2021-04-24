@@ -1,5 +1,7 @@
 import logging
 import tweepy
+
+from datetime import datetime
 from storygraph_bot.util import generic_error_info
 
 logger = logging.getLogger('sgbot.sgbot')
@@ -59,23 +61,32 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
         return pg_bar
 
+    def get_hashtag(story_date):
+        if( datetime.now().strftime('%Y-%m-%d') == story_date ):
+            return '#sgbot_breaking_news'
+        else:
+            return '#sgbot_timetraval'
+
     degree_msg = kwargs.get('degree_msg', '')
     degree_msg = degree_msg if degree_msg == '' else f', {degree_msg}'
 
     max_node_title = graph['max_node_title'].strip()
-    max_node_title = max_node_title if len(max_node_title) <= 100 else max_node_title[:97] + '...'
+    max_node_title = max_node_title if len(max_node_title) <= 80 else max_node_title[:77] + '...'
 
     link = graph['max_node_link']
     if( graph_pos == 0 ):
-        msg_start = f'New top story ({story_date}): {max_node_title} ({link})\n\n'
+        msg_start = f'Breaking story ({story_date}): {max_node_title} ({link})\n\n'
     else:
         msg_start = f'Story update ({story_date}{degree_msg}): {max_node_title} ({link})\n\n'
-
 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
     msg_start += 'Average degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
     msg_start += 'Age: {}'.format( story['timedelta'].split('.')[0] ) + '\n\n'
     msg_start += 'Graph: {}'.format( graph['graph_uri'] )
+    
+    if( graph_pos == 0 ):
+        msg_start += '\n' + get_hashtag(story_date)
+    
 
     return msg_start
 
