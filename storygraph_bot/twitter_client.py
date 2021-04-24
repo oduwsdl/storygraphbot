@@ -74,7 +74,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
     msg_start += 'Average degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
-    msg_start += 'Age: {}'.format( story['timedelta'] ) + '\n\n'
+    msg_start += 'Age: {}'.format( story['timedelta'].split('.')[0] ) + '\n\n'
     msg_start += 'Graph: {}'.format( graph['graph_uri'] )
 
     return msg_start
@@ -122,15 +122,15 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
 
             msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg)
             
-            print('Posting story id:', story['story_id'])
-            print(msg)
+            logger.info( 'Posting story id: {}'.format(story['story_id']) )
+            logger.info(msg)
 
             resp_payload = post_msg(consumer_key, consumer_secret, access_token, access_token_secret, msg=msg, reply_id=reply_id)
             if( 'tweet_id' in resp_payload ):
-                print( '\tPosted successfully: ', resp_payload['tweet_id'] )
+                logger.info( '\tPosted successfully: {}'.format(resp_payload['tweet_id']) )
                 graph['tweet_id'] = resp_payload['tweet_id']
-            else:
-                print('resp_payload:', resp_payload)
+
+            logger.info('')
 
             
     for date, date_payload in stories.items():
