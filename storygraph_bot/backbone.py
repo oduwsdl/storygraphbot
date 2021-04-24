@@ -287,6 +287,35 @@ def setup_storage(stories_path):
 
     return True
 
+def transfer_dets_frm_maxgraphs_to_story_clusters(sggraph):
+
+    if( 'maxgraphs' not in sggraph ):
+        logger.error('maxgraphs not in sggraph, returning')
+        return 
+
+    if( 'story_clusters' not in sggraph ):
+        logger.error('story_clusters not in sggraph, returning')
+        return
+
+    for date, payload in sggraph['story_clusters'].items():
+        for i in range( len(payload['stories']) ):
+            for j in range( len(payload['stories'][i]['graph_ids']) ):
+                
+                main_graph = payload['stories'][i]['graph_ids'][j]
+                indx = main_graph['maxgraph_idx']
+                
+                if( indx >= len(sggraph['maxgraphs'][date]['graphs']) ):
+                    continue
+
+                clone_graph = sggraph['maxgraphs'][date]['graphs'][indx]
+                if( main_graph['graph_uri'] != clone_graph['graph_uri'] ):
+                    continue
+
+                #copy - start
+                main_graph['max_node_link'] = clone_graph['max_connected_comp_dets']['max_node_link']
+                #copy - end
+
+
 def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_datetime, **kwargs):
 
     if( setup_storage(sgbot_path) is False ):
@@ -298,6 +327,9 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     if 'story_clusters' not in data:
         logger.info('No stories returned by storygraph-toolkit')
         return {}
+
+    kwargs.setdefault('update_cache', True)#cache is updated by default, but could be delayed (update_cache=False) when user (post tweet) needs to add information before cache is updated. User must ensure cache is updated
+    transfer_dets_frm_maxgraphs_to_story_clusters( data )
 
     date = list(data["story_clusters"])[0]      
     cache = get_cache(sgbot_path, date)
@@ -316,15 +348,21 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     logger.info(f'Updates of previous stories: {updated_ids}')
 
     #dump_cache 
+    cache_path = f'{sgbot_path}/cache/cache_{date}.json'
     cache[date]["end_datetime"] = data["end_date"]
-    dump_json_to_file( f'{sgbot_path}/cache/cache_{date}.json', cache, indent_flag=False, extra_params={'verbose': False} ) 
+
+    if( kwargs['update_cache'] is True ):
+        dump_json_to_file( cache_path, cache, indent_flag=False, extra_params={'verbose': False} ) 
+    else:
+        logger.warning(f'Warning: Cache not update since update_cache is False, ensure to update cache to avoid application failure during next run.')
 
     #print stories on console
     console_log_stories(cache_stories)
     return {
         'new_story_id': new_story_id,
         'updated_ids': updated_ids,
-        'cache_stories': cache_stories
+        'cache_stories': cache,
+        'cache_path': cache_path
     }
 
 

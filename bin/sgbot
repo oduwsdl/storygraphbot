@@ -6,7 +6,9 @@ import os
 import sys
 
 from storygraph_bot.backbone import sgbot
+from storygraph_bot.twitter_client import post_tweet
 from storygraph_bot.util import cleanup
+from storygraph_bot.util import dump_json_to_file
 from storygraph_bot.util import generic_error_info
 from storygraph_bot.util import set_log_defaults
 from storygraph_bot.util import set_logger_dets
@@ -15,10 +17,18 @@ logger = logging.getLogger('sgbot.sgbot')
 
 def get_generic_args():
     parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Bot that tracks and tweets about developing stories in near-realtime.')
+    #groups here
     parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')
     parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')    
+
+    parser.add_argument('--access-token', default='', help='Twitter API access-token')
+    parser.add_argument('--access-token-secret', default='', help='Twitter API access-token-secret')
+    parser.add_argument('--consumer-key', default='', help='Twitter API consumer-key')
+    parser.add_argument('--consumer-secret', default='', help='Twitter API consumer-secret')
+    parser.add_argument('--tweet-activation-degree', default=4.0, type=float, help='The minimum average degree for stories must have to qualify to be published.')
     
-    parser.add_argument('-a','--activation-degree', dest='activation_degree', default=4.0, type=float, help='The minimum average degree for selected top stories.')
+    #alphabetical order from here
+    parser.add_argument('-a','--activation-degree', dest='activation_degree', default=0.0, type=float, help='The minimum average degree for selected top stories.')
     parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermediate files.')
 
     parser.add_argument('--log-file', default='', help='Log output filename')
@@ -29,6 +39,30 @@ def get_generic_args():
     parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
 
     return(parser)
+
+def get_twitter_keys(params):
+
+    twitter_keys = {}
+    for ky in ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']:
+        
+        twitter_keys[ky] = params.get(ky, '')
+        if( params[ky] == '' ):
+            return {}
+
+    #attempt to extract from environment
+    for ky in ['SGBOT_CONSUMER_KEY', 'SGBOT_CONSUMER_SECRET', 'SGBOT_TWITTER_ACCNT', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN_SECRET']:
+        
+        twitter_keys[ky] = os.eniron.get(ky, '')
+        if( params[ky] == '' ):
+            return {}
+
+    logger.info( 'Application keys extracted, Twitter Account: {}'.format(twitter_keys['SGBOT_TWITTER_ACCNT']) )
+    twitter_keys['consumer_key'] = twitter_keys.pop('SGBOT_CONSUMER_KEY')
+    twitter_keys['consumer_secret'] = twitter_keys.pop('SGBOT_CONSUMER_SECRET')
+    twitter_keys['access_token'] = twitter_keys.pop('SGBOT_TWITTER_ACCNT_ACCESS_TOKEN')
+    twitter_keys['access_token_secret'] = twitter_keys.pop('SGBOT_TWITTER_ACCNT_ACCESS_TOKEN_SECRET')
+
+    return twitter_keys
 
 def main():
 
@@ -48,7 +82,17 @@ def main():
     set_log_defaults( params )
     set_logger_dets( logger, params['log_dets'] )
 
-    sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime)
+    
+    twitter_keys = get_twitter_keys(params)
+    if( len(twitter_keys) == 0 ):
+        sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime)
+    else:
+        
+        payload = sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, update_cache=False)
+        if( len(payload) != 0 ):
+            post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree )
+            dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
+
 
 if __name__ == "__main__":
     main()

@@ -217,6 +217,7 @@ def pretty_print_graph(story_id, story_graph):
     formatted_graph = {
         "Story ID" : story_id,
         "Title" : story_graph.get('max_node_title', ''),        
+        "Title link": story_graph.get('max_node_link', ''),
         "Avg Degree" : story_graph.get('avg_degree', ''),
         "Graph URI": story_graph.get('graph_uri', '')
     }    
