@@ -43,17 +43,19 @@ def get_generic_args():
 def get_twitter_keys(params):
 
     twitter_keys = {}
-    for ky in ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']:
-        
+    for ky in ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']:        
         twitter_keys[ky] = params.get(ky, '')
-        if( params[ky] == '' ):
-            return {}
+
+
+    if( len(twitter_keys) == 4 ):
+        logger.info( 'Application keys extracted' )
+        return twitter_keys
 
     #attempt to extract from environment
     for ky in ['SGBOT_CONSUMER_KEY', 'SGBOT_CONSUMER_SECRET', 'SGBOT_TWITTER_ACCNT', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN_SECRET']:
         
-        twitter_keys[ky] = os.eniron.get(ky, '')
-        if( params[ky] == '' ):
+        twitter_keys[ky] = os.environ.get(ky, '')
+        if( twitter_keys[ky] == '' ):
             return {}
 
     logger.info( 'Application keys extracted, Twitter Account: {}'.format(twitter_keys['SGBOT_TWITTER_ACCNT']) )
