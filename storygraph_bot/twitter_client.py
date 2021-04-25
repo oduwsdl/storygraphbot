@@ -53,14 +53,19 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
         Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=79&hist=1440&t=2020-06-10T13:17:17
     '''
-    progress_bar_glyph = kwargs.get('progress_bar_glyph', '█')
-    progress_bar_glyph = progress_bar_glyph.strip()
-    progress_bar_glyph = progress_bar_glyph[0] if len(progress_bar_glyph) > 1 else progress_bar_glyph
+    progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '⬤')
+    progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '◯')
+
+    progress_bar_glyph_on = progress_bar_glyph_on.strip()
+    progress_bar_glyph_off = progress_bar_glyph_off.strip()
+
+    progress_bar_glyph_on = progress_bar_glyph_on[0] if len(progress_bar_glyph_on) > 1 else progress_bar_glyph_on
+    progress_bar_glyph_off = progress_bar_glyph_off[0] if len(progress_bar_glyph_off) > 1 else progress_bar_glyph_off
 
     def get_progress_bar(avg_degree, max_bar=23):
         avg_degree = int(avg_degree)
 
-        pg_bar = '|' + ('▁' * max_bar).replace('▁', progress_bar_glyph, avg_degree) + '|'
+        pg_bar = '|' + (progress_bar_glyph_off * max_bar).replace(progress_bar_glyph_off, progress_bar_glyph_on, avg_degree) + '|'
 
         return pg_bar
 
