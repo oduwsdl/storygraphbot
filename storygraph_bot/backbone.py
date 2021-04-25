@@ -351,6 +351,7 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
     #dump_cache 
     cache_path = f'{sgbot_path}/cache/cache_{cur_story_date}.json'
     cache[cur_story_date]["end_datetime"] = sg_stories["end_date"]
+    cache[cur_story_date]['self'] = kwargs.get('self_cmd', '')
 
     if( kwargs['update_cache'] is True ):
         dump_json_to_file( cache_path, cache, indent_flag=False, extra_params={'verbose': False} ) 

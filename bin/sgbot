@@ -5,6 +5,8 @@ import logging
 import os
 import sys
 
+from subprocess import list2cmdline
+
 from storygraph_bot.backbone import sgbot
 from storygraph_bot.twitter_client import post_tweet
 from storygraph_bot.util import cleanup
@@ -90,11 +92,12 @@ def main():
 
     
     twitter_keys = get_twitter_keys(params)
+    self_cmd = list2cmdline(sys.argv)
     if( len(twitter_keys) == 0 ):
-        sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime)
+        sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, self_cmd=self_cmd)
     else:
         
-        payload = sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, update_cache=False)
+        payload = sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, update_cache=False, self_cmd=self_cmd)
         if( len(payload) != 0 ):
             post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, progress_bar_glyph_on=args.progress_bar_glyph_on, progress_bar_glyph_off=args.progress_bar_glyph_off )
             dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
