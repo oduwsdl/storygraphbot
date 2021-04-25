@@ -89,7 +89,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     if( graph_pos == 0 ):
         msg_start = f'Breaking story ({story_date}): {max_node_title} ({link})\n\n'
     else:
-        msg_start = f'Story update ({story_date}{degree_msg}): {max_node_title} ({link})\n\n'
+        msg_start = str(graph_pos+1) + f'. Story update ({story_date}{degree_msg}): {max_node_title} ({link})\n\n'
 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
     msg_start += 'Average degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
