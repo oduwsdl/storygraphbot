@@ -37,8 +37,8 @@ def get_generic_args():
 
     parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The similarity threshold for matching two stories.')
     parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
-    parser.add_argument('--progress-bar-glyph-on', default='⬤', help='On glyph to be used to fill progress bar.')
-    parser.add_argument('--progress-bar-glyph-off', default='◯', help='Off glyph to be used to fill progress bar.')
+    parser.add_argument('--progress-bar-glyph-on', default='●', help='On glyph to be used to fill progress bar.')
+    parser.add_argument('--progress-bar-glyph-off', default='○', help='Off glyph to be used to fill progress bar.')
 
     return(parser)
 

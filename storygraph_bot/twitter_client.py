@@ -53,8 +53,8 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
         Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=79&hist=1440&t=2020-06-10T13:17:17
     '''
-    progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '⬤')
-    progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '◯')
+    progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '●')
+    progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '○')
 
     progress_bar_glyph_on = progress_bar_glyph_on.strip()
     progress_bar_glyph_off = progress_bar_glyph_off.strip()
@@ -62,7 +62,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     progress_bar_glyph_on = progress_bar_glyph_on[0] if len(progress_bar_glyph_on) > 1 else progress_bar_glyph_on
     progress_bar_glyph_off = progress_bar_glyph_off[0] if len(progress_bar_glyph_off) > 1 else progress_bar_glyph_off
 
-    def get_progress_bar(avg_degree, max_bar=23):
+    def get_progress_bar(avg_degree, max_bar=24):
         avg_degree = int(avg_degree)
 
         pg_bar = '|' + (progress_bar_glyph_off * max_bar).replace(progress_bar_glyph_off, progress_bar_glyph_on, avg_degree) + '|'
@@ -71,36 +71,51 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
     def get_hashtag(story_date):
         if( datetime.now().strftime('%Y-%m-%d') == story_date ):
-            return '#sgbot_breaking_news'
+            return '#SGBotBreakingNews'
         else:
-            return '#sgbot_timetravel'
+            return '#SGBotTimetravel'
+
+    def get_fmt_age(story):
+        
+        d0 = story['reported_graphs'][0]['graph_uri_local_datetime']
+        d1 = story['reported_graphs'][-1]['graph_uri_local_datetime']
+        
+        if( d0 == d1 ):
+            age = story['timedelta']
+        else:
+            d0 = datetime.strptime(d0, '%Y-%m-%dT%H:%M:%S')
+            d1 = datetime.strptime(d1, '%Y-%m-%dT%H:%M:%S')
+            age = str(d1 - d0)
+
+        '''
+            age formats:
+            xx days, HH:MM:SS.abcde
+        '''
+        age = age.split('.')[0]
+        age = age.split(':')[:-1]
+        age = age[0] + 'h:' + age[1] + 'm'
+
+        return age
+
 
     degree_msg = kwargs.get('degree_msg', '')
     degree_msg = degree_msg if degree_msg == '' else f', {degree_msg}'
 
+    max_title_len = 70
     max_node_title = graph['max_node_title'].strip()
-    max_node_title = max_node_title if len(max_node_title) <= 80 else max_node_title[:77] + '...'
+    max_node_title = max_node_title if len(max_node_title) <= max_title_len else max_node_title[:max_title_len-3] + '...'
 
-
-    d0 = story['reported_graphs'][0]['graph_uri_local_datetime']
-    d1 = story['reported_graphs'][-1]['graph_uri_local_datetime']
-    if( d0 == d1 ):
-        age = story['timedelta']
-    else:
-        d0 = datetime.strptime(d0, '%Y-%m-%dT%H:%M:%S')
-        d1 = datetime.strptime(d1, '%Y-%m-%dT%H:%M:%S')
-        age = str(d1 - d0)
-    age = age.split('.')[0]
     
-
+    age = get_fmt_age(story)
     link = graph['max_node_link']
     if( graph_pos == 0 ):
         msg_start = f'Breaking story ({story_date}): {max_node_title} ({link})\n\n'
     else:
-        msg_start = str(graph_pos+1) + f'. Story update ({story_date}{degree_msg}): {max_node_title} ({link})\n\n'
+        story_indx = str(graph_pos+1)[:3]
+        msg_start = f'{story_indx}. Story update{degree_msg} ({story_date}): {max_node_title} ({link})\n\n'
 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
-    msg_start += 'Average degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
+    msg_start += 'Avg degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
     msg_start += 'Age: {}'.format(age) + '\n\n'
     msg_start += 'Graph: {}'.format( graph['graph_uri'] )
     
@@ -144,11 +159,11 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
                 now_deg = story['reported_graphs'][i]['avg_degree']
                 
                 if( prev_deg == now_deg ):
-                    degree_msg = 'same degree'
+                    degree_msg = 'same'
                 elif( now_deg > prev_deg ):
-                    degree_msg = 'higher degree'
+                    degree_msg = 'rising'
                 else:
-                    degree_msg = 'lower degree'
+                    degree_msg = 'falling'
 
                 if( 'tweet_id' in story['reported_graphs'][i-1] ):
                     reply_id = story['reported_graphs'][i-1]['tweet_id']
