@@ -68,7 +68,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
         if( datetime.now().strftime('%Y-%m-%d') == story_date ):
             return '#sgbot_breaking_news'
         else:
-            return '#sgbot_timetraval'
+            return '#sgbot_timetravel'
 
     degree_msg = kwargs.get('degree_msg', '')
     degree_msg = degree_msg if degree_msg == '' else f', {degree_msg}'
