@@ -148,7 +148,7 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
                 if( 'tweet_id' in story['reported_graphs'][i-1] ):
                     reply_id = story['reported_graphs'][i-1]['tweet_id']
 
-            msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg)
+            msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg, **kwargs)
             
             logger.info( 'Posting story id: {}'.format(story['story_id']) )
             logger.info(msg)
