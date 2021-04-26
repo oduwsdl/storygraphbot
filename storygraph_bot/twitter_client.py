@@ -53,16 +53,16 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
         Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=83&hist=1440&t=2020-11-03T13:51:12
     '''
-    progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '●')
-    progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '○')
+    meter_glyph_on = kwargs.get('meter_glyph_on', '●')
+    meter_glyph_off = kwargs.get('meter_glyph_off', '○')
 
-    progress_bar_glyph_on = progress_bar_glyph_on.strip()[:1]
-    progress_bar_glyph_off = progress_bar_glyph_off.strip()[:1]
+    meter_glyph_on = meter_glyph_on.strip()[:1]
+    meter_glyph_off = meter_glyph_off.strip()[:1]
 
-    def get_progress_bar(avg_degree, max_bar=24):
+    def get_meter(avg_degree, max_bar=24):
         avg_degree = int(avg_degree)
 
-        pg_bar = '|' + (progress_bar_glyph_off * max_bar).replace(progress_bar_glyph_off, progress_bar_glyph_on, avg_degree) + '|'
+        pg_bar = '|' + (meter_glyph_off * max_bar).replace(meter_glyph_off, meter_glyph_on, avg_degree) + '|'
 
         return pg_bar
 
@@ -112,7 +112,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
         msg_start = f'{story_indx}. Story update{degree_msg} ({story_date}): {max_node_title} ({link})\n\n'
 
     msg_start += '{:.2f}'.format( graph['avg_degree'] )+ ':\n' 
-    msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
+    msg_start += get_meter( graph['avg_degree'] ) + '\n'
     msg_start += 'Age: {}'.format(age) + '\n\n'
     
     msg_start += graph['graph_uri']
