@@ -34,24 +34,24 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     
     '''
         NEW MESSAGE FORMAT:
-        New top story (yyyy-mm-dd): The Hill's Morning Report - Trump's public standing sags after Floyd protests | TheHill TheHill TheH
-         (https://thehill.com/homenews/morning-report/501994-the-hills-morning-report)
+        fmt 1
+        Breaking story (2018-05-19): Texas gov calls for action after shooting: ‘We need to do more than... (http://thehill.com/homenews/state-watch/388426-texas-gov-calls-for-action-after-shooting-we-need-to-do-more-than-just)
 
-        |██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁|
-        Average Degree: 2.8
-        Age: 11323 days, 0:01:00
+        |●●●●○○○○○○○○○○○○○○○○○○○○|
+        Avg degree: 4.17
+        Age: 0h:50m
 
-        Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=76&hist=1440&t=2020-06-10T12:47:07
+        Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=26&hist=1440&t=2018-05-19T04:21:13
+        #SGBotTimetravel
+    
+        fmt 2
+        2. Story update, falling (2020-11-03): Biden and Trump criticize their opponent in multiple states on the ... (https://washingtonpost.com/politics/campaign-biden-trump/2020/11/02/dd36f5e2-1d0e-11eb-ba21-f2f001f0554b_story.html?utm_source=rss&utm_medium=referral&utm_campaign=wp_politics)
 
+        |●●●○○○○○○○○○○○○○○○○○○○○○|
+        Avg degree: 3.12
+        Age: 6h:30m
 
-        UPDATE MESSAGE FORMAT:
-        Story update (lower degree): Black Lives Matter Is Winning | RealClearPolitics
-        Link: https://www.realclearpolitics.com/2020/06/10/black_lives_matter_is_winning_513823.html
-
-        Average Degree: 2.4
-        |██▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁▁|
-
-        Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=79&hist=1440&t=2020-06-10T13:17:17
+        Graph: http://storygraph.cs.odu.edu/graphs/polar-media-consensus-graph/#cursor=83&hist=1440&t=2020-11-03T13:51:12
     '''
     progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '●')
     progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '○')
@@ -101,7 +101,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     degree_msg = kwargs.get('degree_msg', '')
     degree_msg = degree_msg if degree_msg == '' else f', {degree_msg}'
 
-    max_title_len = 70
+    max_title_len = 95
     max_node_title = graph['max_node_title'].strip()
     max_node_title = max_node_title if len(max_node_title) <= max_title_len else max_node_title[:max_title_len-3] + '...'
 
@@ -114,11 +114,11 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
         story_indx = str(graph_pos+1)[:3]
         msg_start = f'{story_indx}. Story update{degree_msg} ({story_date}): {max_node_title} ({link})\n\n'
 
+    msg_start += '{:.2f}'.format( graph['avg_degree'] )+ ':\n' 
     msg_start += get_progress_bar( graph['avg_degree'] ) + '\n'
-    msg_start += 'Avg degree: {:.2f}'.format( graph['avg_degree'] ) + '\n'
     msg_start += 'Age: {}'.format(age) + '\n\n'
-    msg_start += 'Graph: {}'.format( graph['graph_uri'] )
     
+    msg_start += graph['graph_uri']
     if( graph_pos == 0 ):
         msg_start += '\n' + get_hashtag(story_date)
     
