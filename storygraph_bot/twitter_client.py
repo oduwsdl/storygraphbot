@@ -56,11 +56,8 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     progress_bar_glyph_on = kwargs.get('progress_bar_glyph_on', '●')
     progress_bar_glyph_off = kwargs.get('progress_bar_glyph_off', '○')
 
-    progress_bar_glyph_on = progress_bar_glyph_on.strip()
-    progress_bar_glyph_off = progress_bar_glyph_off.strip()
-
-    progress_bar_glyph_on = progress_bar_glyph_on[0] if len(progress_bar_glyph_on) > 1 else progress_bar_glyph_on
-    progress_bar_glyph_off = progress_bar_glyph_off[0] if len(progress_bar_glyph_off) > 1 else progress_bar_glyph_off
+    progress_bar_glyph_on = progress_bar_glyph_on.strip()[:1]
+    progress_bar_glyph_off = progress_bar_glyph_off.strip()[:1]
 
     def get_progress_bar(avg_degree, max_bar=24):
         avg_degree = int(avg_degree)
