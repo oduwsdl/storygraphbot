@@ -48,7 +48,9 @@ def get_twitter_keys(params):
 
     twitter_keys = {}
     for ky in ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']:        
-        twitter_keys[ky] = params.get(ky, '')
+        val = params.get(ky, '')
+        if( val != '' ):
+            twitter_keys[ky] = val
 
 
     if( len(twitter_keys) == 4 ):
