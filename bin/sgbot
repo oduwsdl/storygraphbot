@@ -32,6 +32,7 @@ def get_generic_args():
     #alphabetical order from here
     parser.add_argument('-a','--activation-degree', dest='activation_degree', default=0.0, type=float, help='The minimum average degree for selected top stories.')
     parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermediate files.')
+    parser.add_argument('--keep-history', action='store_true', help='Keep all cache, tmp, and tracked_stories files.')
 
     parser.add_argument('--log-file', default='', help='Log output filename')
     parser.add_argument('--log-format', default='', help='Log print format, see: https://docs.python.org/3/howto/logging-cookbook.html')
