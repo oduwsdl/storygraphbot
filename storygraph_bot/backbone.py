@@ -16,6 +16,7 @@ from storygraph_bot.util import generic_error_info
 from storygraph_bot.util import overlap_stories
 from storygraph_bot.util import post_story
 from storygraph_bot.util import pretty_print_graph
+from storygraph_bot.util import rm_all_but_yesterday_today_cache
 
 logger = logging.getLogger('sgbot.sgbot')
 
@@ -131,7 +132,7 @@ def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_stor
     
     if( kwargs.get('keep_history', False) is True ):
         mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date)
-        
+
     return(map_cachestories, topstory_incache)
 
 def multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, end_datetime, cur_story_date):    
@@ -365,6 +366,9 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, start_datetime, end_
 
     #print stories on console
     console_log_stories(cache_stories)
+    if( kwargs['keep_history'] is False ):
+        rm_all_but_yesterday_today_cache(sgbot_path, cur_story_date)
+
     return {
         'new_story_id': new_story_id,
         'updated_ids': updated_ids,

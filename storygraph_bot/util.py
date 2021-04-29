@@ -2,6 +2,7 @@ import json
 import logging
 import os
 import sys
+from datetime import datetime, timedelta
 
 logger = logging.getLogger('sgbot.sgbot')
 
@@ -186,6 +187,18 @@ def cleanup(stories_path, verify_deletion=True):
             print('Deleted!')
         except:
             generic_error_info()
+
+def rm_all_but_yesterday_today_cache(cache_path, cur_story_date):
+    try:
+        today = datetime.strptime(cur_story_date, '%Y-%m-%d')
+        yesterday = today - timedelta(days=1)
+
+        today = f'{cache_path}/cache/' + 'cache_{}.json'.format( today.strftime('%Y-%m-%d') )
+        yesterday = f'{cache_path}/cache/' + 'cache_{}.json'.format( yesterday.strftime('%Y-%m-%d') )
+
+        os.system(f'mv {yesterday} {yesterday}.tmp; mv {today} {today}.tmp && rm -f {cache_path}/cache/cache_*.json; mv {today}.tmp {today}; mv {yesterday}.tmp {yesterday}')
+    except:
+        generic_error_info()
 
 def get_cache(sgbot_path, date):
     cache = check_cache_exist(sgbot_path, date)
