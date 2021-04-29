@@ -196,6 +196,9 @@ def rm_all_but_yesterday_today_cache(cache_path, cur_story_date):
         today = f'{cache_path}/cache/' + 'cache_{}.json'.format( today.strftime('%Y-%m-%d') )
         yesterday = f'{cache_path}/cache/' + 'cache_{}.json'.format( yesterday.strftime('%Y-%m-%d') )
 
+        if( os.path.exists(yesterday) is False or os.path.exists(today) is False ):
+            return
+
         os.system(f'mv {yesterday} {yesterday}.tmp; mv {today} {today}.tmp && rm -f {cache_path}/cache/cache_*.json; mv {today}.tmp {today}; mv {yesterday}.tmp {yesterday}')
     except:
         generic_error_info()
