@@ -97,10 +97,10 @@ def main():
     twitter_keys = get_twitter_keys(params)
     self_cmd = list2cmdline(sys.argv)
     if( len(twitter_keys) == 0 ):
-        sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, self_cmd=self_cmd, **params)
+        sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
     else:
         
-        payload = sgbot(args.sgbot_path, args.activation_degree, args.overlap_threshold, args.start_datetime, args.end_datetime, update_cache=False, self_cmd=self_cmd, **params)
+        payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
         if( len(payload) != 0 ):
             post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
             dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
