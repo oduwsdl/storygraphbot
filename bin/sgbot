@@ -1,0 +1,110 @@
+#!python
+import argparse
+import json
+import logging
+import os
+import sys
+
+from subprocess import list2cmdline
+
+from storygraph_bot.backbone import sgbot
+from storygraph_bot.twitter_client import post_tweet
+from storygraph_bot.util import cleanup
+from storygraph_bot.util import dump_json_to_file
+from storygraph_bot.util import generic_error_info
+from storygraph_bot.util import set_log_defaults
+from storygraph_bot.util import set_logger_dets
+
+logger = logging.getLogger('sgbot.sgbot')
+
+def get_generic_args():
+    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Bot that tracks and tweets about developing stories in near-realtime.')
+    #groups here
+    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')
+    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')    
+
+    parser.add_argument('--access-token', default='', help='Twitter API access-token')
+    parser.add_argument('--access-token-secret', default='', help='Twitter API access-token-secret')
+    parser.add_argument('--consumer-key', default='', help='Twitter API consumer-key')
+    parser.add_argument('--consumer-secret', default='', help='Twitter API consumer-secret')
+    parser.add_argument('--tweet-activation-degree', default=4.0, type=float, help='The minimum average degree for stories must have to qualify to be published.')
+    
+    #alphabetical order from here
+    parser.add_argument('-a','--activation-degree', dest='activation_degree', default=0.0, type=float, help='The minimum average degree for selected top stories.')
+    parser.add_argument('--cleanup', action='store_true', help='Delete cache and intermediate files.')
+    parser.add_argument('--keep-history', action='store_true', help='Keep all cache, tmp, and tracked_stories files.')
+
+    parser.add_argument('--log-file', default='', help='Log output filename')
+    parser.add_argument('--log-format', default='', help='Log print format, see: https://docs.python.org/3/howto/logging-cookbook.html')
+    parser.add_argument('--log-level', default='info', choices=['critical', 'error', 'warning', 'info', 'debug', 'notset'], help='Log level')
+
+    parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The similarity threshold for matching two stories.')
+    parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
+    parser.add_argument('--meter-glyph-on', default='●', help='On glyph to be used to fill progress bar.')
+    parser.add_argument('--meter-glyph-off', default='○', help='Off glyph to be used to fill progress bar.')
+
+    return(parser)
+
+def get_twitter_keys(params):
+
+    twitter_keys = {}
+    for ky in ['access_token', 'access_token_secret', 'consumer_key', 'consumer_secret']:        
+        val = params.get(ky, '')
+        if( val != '' ):
+            twitter_keys[ky] = val
+
+
+    if( len(twitter_keys) == 4 ):
+        logger.info( 'Application keys extracted' )
+        return twitter_keys
+
+    #attempt to extract from environment
+    for ky in ['SGBOT_CONSUMER_KEY', 'SGBOT_CONSUMER_SECRET', 'SGBOT_TWITTER_ACCNT', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN', 'SGBOT_TWITTER_ACCNT_ACCESS_TOKEN_SECRET']:
+        
+        twitter_keys[ky] = os.environ.get(ky, '')
+        if( twitter_keys[ky] == '' ):
+            return {}
+
+    logger.info( 'Application keys extracted, Twitter Account: {}'.format(twitter_keys['SGBOT_TWITTER_ACCNT']) )
+    twitter_keys['consumer_key'] = twitter_keys.pop('SGBOT_CONSUMER_KEY')
+    twitter_keys['consumer_secret'] = twitter_keys.pop('SGBOT_CONSUMER_SECRET')
+    twitter_keys['access_token'] = twitter_keys.pop('SGBOT_TWITTER_ACCNT_ACCESS_TOKEN')
+    twitter_keys['access_token_secret'] = twitter_keys.pop('SGBOT_TWITTER_ACCNT_ACCESS_TOKEN_SECRET')
+
+    return twitter_keys
+
+def main():
+
+    if( len(sys.argv) > 1 ):
+        if( sys.argv[1] == '-v' or sys.argv[1] == '--version' ):
+            
+            from storygraph_bot.version import __appversion__
+            print(__appversion__)
+            return
+
+    args = get_generic_args().parse_args()
+    if( args.cleanup is True ):
+        cleanup(args.sgbot_path)
+        return
+    
+    params = vars(args)
+    set_log_defaults( params )
+    set_logger_dets( logger, params['log_dets'] )
+    args.sgbot_path = args.sgbot_path.strip()
+    args.sgbot_path = args.sgbot_path[:-1] if args.sgbot_path.endswith('/') else args.sgbot_path
+
+    
+    twitter_keys = get_twitter_keys(params)
+    self_cmd = list2cmdline(sys.argv)
+    if( len(twitter_keys) == 0 ):
+        sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
+    else:
+        
+        payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
+        if( len(payload) != 0 ):
+            post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
+            dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
+
+
+if __name__ == "__main__":
+    main()
