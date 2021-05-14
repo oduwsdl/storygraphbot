@@ -32,6 +32,40 @@ def post_msg(consumer_key, consumer_secret, access_token, access_token_secret, m
 
 def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     
+    def get_meter(avg_degree, max_bar=24):
+        avg_degree = int(avg_degree)
+
+        pg_bar = '|' + (meter_glyph_off * max_bar).replace(meter_glyph_off, meter_glyph_on, avg_degree) + '|'
+
+        return pg_bar
+
+    def get_hashtag(story_date):
+        if( datetime.now().strftime('%Y-%m-%d') == story_date ):
+            return '#SGBotBreakingNews'
+        else:
+            return '#SGBotTimetravel'
+
+    def fmt_story_age(st_datetime, en_datetime):
+
+        try:
+            st_datetime = datetime.strptime(st_datetime, '%Y-%m-%dT%H:%M:%S')
+            en_datetime = datetime.strptime(en_datetime, '%Y-%m-%dT%H:%M:%S')
+        except:
+            generic_error_info()
+            return ''
+            
+        age = str(en_datetime - st_datetime)
+
+        '''
+            age formats:
+            xx days, HH:MM:SS.abcde
+        '''
+        age = age.split('.')[0]
+        age = age.split(':')[:-1]
+        age = age[0] + 'h:' + age[1] + 'm'
+
+        return age
+
     '''
         NEW MESSAGE FORMAT:
         fmt 1
@@ -59,42 +93,6 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     meter_glyph_on = meter_glyph_on.strip()[:1]
     meter_glyph_off = meter_glyph_off.strip()[:1]
 
-    def get_meter(avg_degree, max_bar=24):
-        avg_degree = int(avg_degree)
-
-        pg_bar = '|' + (meter_glyph_off * max_bar).replace(meter_glyph_off, meter_glyph_on, avg_degree) + '|'
-
-        return pg_bar
-
-    def get_hashtag(story_date):
-        if( datetime.now().strftime('%Y-%m-%d') == story_date ):
-            return '#SGBotBreakingNews'
-        else:
-            return '#SGBotTimetravel'
-
-    def get_fmt_age(story):
-        
-        d0 = story['reported_graphs'][0]['graph_uri_local_datetime']
-        d1 = story['reported_graphs'][-1]['graph_uri_local_datetime']
-        
-        if( d0 == d1 ):
-            age = story['timedelta']
-        else:
-            d0 = datetime.strptime(d0, '%Y-%m-%dT%H:%M:%S')
-            d1 = datetime.strptime(d1, '%Y-%m-%dT%H:%M:%S')
-            age = str(d1 - d0)
-
-        '''
-            age formats:
-            xx days, HH:MM:SS.abcde
-        '''
-        age = age.split('.')[0]
-        age = age.split(':')[:-1]
-        age = age[0] + 'h:' + age[1] + 'm'
-
-        return age
-
-
     degree_msg = kwargs.get('degree_msg', '')
     degree_msg = degree_msg if degree_msg == '' else f', {degree_msg}'
 
@@ -103,7 +101,9 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     max_node_title = max_node_title if len(max_node_title) <= max_title_len else max_node_title[:max_title_len-3] + '...'
 
     
-    age = get_fmt_age(story)
+    earliest_graph_datetime = story['reported_graphs'][0].get('more_details', {}).get('earliest_graph_datetime', '')
+    age = fmt_story_age( earliest_graph_datetime, graph['graph_uri_local_datetime'] )
+
     link = graph['max_node_link']
     if( graph_pos == 0 ):
         msg_start = f'Breaking story ({story_date}): {max_node_title} ({link})\n\n'
@@ -113,7 +113,7 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
 
     msg_start += '{:.2f}'.format( graph['avg_degree'] )+ ':\n' 
     msg_start += get_meter( graph['avg_degree'] ) + '\n'
-    msg_start += 'Age: {}'.format(age) + '\n\n'
+    msg_start += '\n\n' if age == '' else 'Age: {}'.format(age) + '\n\n'
     
     msg_start += graph['graph_uri']
     if( graph_pos == 0 ):

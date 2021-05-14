@@ -203,15 +203,30 @@ def newstory_handler(sgbot_path, activation_degree, cache_stories, stories, st0_
             new_story_id = new_story(sgbot_path, top_story, cache_stories, cur_story_date, enable_post_story=kwargs.get('keep_history', False))
     return(new_story_id)    
 
+def cp_details_to_reported_graph(sg, graph_ids):
+
+    timestamps = [ g['graph_uri_local_datetime'] for g in graph_ids if g['graph_uri_local_datetime'] <= sg['graph_uri_local_datetime'] ]
+    timestamps.sort()
+
+    if( len(timestamps) == 0 ):
+        return
+
+    sg.setdefault('more_details', {})
+    sg['more_details']['earliest_graph_datetime'] = timestamps[0]
+
 def new_story(sgbot_path, top_story, cache_stories, cur_story_date, enable_post_story=False):
     #print("Creating 1 new thread for new top story")            
     story_id = f'{cur_story_date.replace("-","")}_{len(cache_stories)}'
     top_story["story_id"] = story_id
     top_story["reported_graphs"] = []
     story_graph = top_story["graph_ids"][0]
+    
     #post story to file
     if( enable_post_story is True ):
         post_story(sgbot_path, story_id, story_graph)    
+    
+    cp_details_to_reported_graph(story_graph, top_story["graph_ids"])
+
     #update cache
     top_story["reported_graphs"].append(story_graph)
     cache_stories.append(top_story)     
@@ -240,15 +255,17 @@ def update_story(sgbot_path, story_id, update, cache_stories, stories, enable_po
         story_data = stories[data_sidx]             
         story_graphs = story_data["graph_ids"]
 
-        if story_graphs[0]['id'] != story_cache["graph_ids"][0]['id']:
-            latest_graph = story_graphs[0]
-        else: 
+        if story_graphs[0]['id'] == story_cache["graph_ids"][0]['id']:
             #top snapshot hasnt changed
             latest_graph_uri = new_graphs[0]
             latest_story_graphs = [dic for dic in story_graphs if dic["graph_uri_local_datetime"]==latest_graph_uri] 
             l_id = sorted(latest_story_graphs, key=lambda k: int(k['id'].split("-")[1]), reverse=True) #id used identify graphs
             latest_graph = l_id[0]
-        
+        else:
+            latest_graph = story_graphs[0]
+
+        cp_details_to_reported_graph(latest_graph, story_graphs)
+
         if( enable_post_story is True ):
             post_story(sgbot_path, story_id, latest_graph)
         #update_cache
@@ -265,14 +282,14 @@ def console_log_stories(cache_stories):
         story_id = story["story_id"]
         reported_graphs = story["reported_graphs"]
 
-        formatted_story = pretty_print_graph(story_id, reported_graphs[-1])
+        formatted_story = pretty_print_graph(story_id, reported_graphs[-1], '')
         for k,v in formatted_story.items(): 
             logger.info(f'\t{k}: {v}')
 
         if len(reported_graphs) > 1:    
             logger.info(f'\t\tHistory:')
-            for graph in reported_graphs[:-1]:
-                formatted_story = pretty_print_graph(story_id, graph)
+            for i in range( len(reported_graphs)-1 ):
+                formatted_story = pretty_print_graph(story_id, reported_graphs[i], '{}. '.format(i+1))
                 for k,v in formatted_story.items():
                     if k!="Story ID": 
                         logger.info(f'\t\t\t{k}: {v}')

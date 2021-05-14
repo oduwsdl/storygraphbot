@@ -228,11 +228,11 @@ def overlap_stories(first, second):
     else:
         return(0) 
 
-def pretty_print_graph(story_id, story_graph):
+def pretty_print_graph(story_id, story_graph, title_prefix):
     #format graph
     formatted_graph = {
         "Story ID" : story_id,
-        "Title" : story_graph.get('max_node_title', ''),        
+        "Title" : title_prefix + story_graph.get('max_node_title', ''),        
         "Title link": story_graph.get('max_node_link', ''),
         "Avg Degree" : story_graph.get('avg_degree', ''),
         "Graph URI": story_graph.get('graph_uri', '')
@@ -262,3 +262,4 @@ def post_story(sgbot_path, story_id, story_graph):
         story_file.close()
     except:
         generic_error_info()
+
