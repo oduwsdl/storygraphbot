@@ -181,7 +181,7 @@ def story_incache(num, map_cachestories):
     return(is_story_incache)
 
 def get_topstories(top_stories_count, activation_degree, stories, map_cachestories):
-    K_top_stories = []
+    k_top_stories = []
 
     if( len(stories) != 0 ):
         
@@ -196,17 +196,17 @@ def get_topstories(top_stories_count, activation_degree, stories, map_cachestori
             #check activation degree
             if top_story["max_avg_degree"] > activation_degree :
                 if not story_incache(num, map_cachestories):
-                    K_top_stories.append(top_story)
+                    k_top_stories.append(top_story)
     
-    return(K_top_stories)
+    return(k_top_stories)
 
 def newstory_handler(sgbot_path, cache_stories, stories, map_cachestories, top_stories_count, activation_degree, cur_story_date, **kwargs):
 
-    K_top_stories = get_topstories(top_stories_count, activation_degree, stories, map_cachestories)
+    k_top_stories = get_topstories(top_stories_count, activation_degree, stories, map_cachestories)
     new_story_ids = []
 
-    if K_top_stories != []:        
-        for top_story in K_top_stories:
+    if k_top_stories != []:        
+        for top_story in k_top_stories:
             new_story_id = new_story(sgbot_path, top_story, cache_stories, cur_story_date, enable_post_story=kwargs.get('keep_history', False))
             new_story_ids.append(new_story_id)
 
