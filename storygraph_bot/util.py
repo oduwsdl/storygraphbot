@@ -252,7 +252,7 @@ def post_story(sgbot_path, story_id, story_graph):
         story_file = open(story_fname, mode)
 
         #format graph
-        formatted_graph = pretty_print_graph(story_id, story_graph)    
+        formatted_graph = pretty_print_graph(story_id, story_graph, '')    
 
         #print story to file        
         for k,v in formatted_graph.items(): 
