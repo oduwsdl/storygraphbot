@@ -38,6 +38,7 @@ def get_generic_args():
     parser.add_argument('--log-format', default='', help='Log print format, see: https://docs.python.org/3/howto/logging-cookbook.html')
     parser.add_argument('--log-level', default='info', choices=['critical', 'error', 'warning', 'info', 'debug', 'notset'], help='Log level')
 
+    parser.add_argument('-k', '--top-stories-count', type=int, default=5, help='Count of top stories to extract.')
     parser.add_argument('-ol', '--overlap-threshold', default=0.9, type=float, help='The similarity threshold for matching two stories.')
     parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
     parser.add_argument('--meter-glyph-on', default='●', help='On glyph to be used to fill progress bar.')
@@ -97,10 +98,10 @@ def main():
     twitter_keys = get_twitter_keys(params)
     self_cmd = list2cmdline(sys.argv)
     if( len(twitter_keys) == 0 ):
-        sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
+        sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
     else:
         
-        payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
+        payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
         if( len(payload) != 0 ):
             post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
             dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
