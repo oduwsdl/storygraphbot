@@ -9,6 +9,7 @@ class TestSGBot(unittest.TestCase):
     sgbot_path = '/tmp/SGBOT_TEST_PATH'
     activation_degree = 0
     overlap_threshold = 0.9
+    top_stories_count = 1#5
 
     def generic_tester(self, test_cases):
 
@@ -18,15 +19,20 @@ class TestSGBot(unittest.TestCase):
                 cleanup(TestSGBot.sgbot_path, verify_deletion=False)
             
             if( run_sgbot is True ):
-                stories = sgbot(TestSGBot.sgbot_path, TestSGBot.activation_degree, TestSGBot.overlap_threshold, start_datetime, end_datetime)
+                stories = sgbot(TestSGBot.sgbot_path, TestSGBot.activation_degree, TestSGBot.overlap_threshold, TestSGBot.top_stories_count, start_datetime, end_datetime)
             else:
                 stories = prev_stories
 
-            for ky in ['new_story_id', 'updated_ids', 'cache_stories']:
+            for ky in ['new_story_ids', 'updated_ids', 'cache_stories']:
                 self.assertTrue( ky in stories, f'"{ky}" not in stories' )
             
-            self.assertTrue( stories['new_story_id'] == expected_new_story_id, f'"{expected_new_story_id}" not new_story_id' )
-            self.assertTrue( stories['updated_ids'] == expected_updated_ids, 'expected_updated_ids MISMATCH, expected: "' + str(expected_updated_ids) + '", got: "'+ str(stories['updated_ids']) +'"' )
+            if( expected_new_story_id is not None ):
+                self.assertTrue( stories['new_story_ids'] is not None, 'new_story_ids is None' )
+                self.assertTrue( stories['new_story_ids'].find(expected_new_story_id) > -1, f'"{expected_new_story_id}" not new_story_id' )
+            
+            if( expected_updated_ids is not None ):
+                self.assertTrue( stories['updated_ids'] is not None, 'updated_ids is None' )
+                self.assertTrue( stories['updated_ids'].find(expected_updated_ids) > -1, 'expected_updated_ids MISMATCH, expected: "' + str(expected_updated_ids) + '", got: "'+ str(stories['updated_ids']) +'"' )
             
             if( expected_new_story_id is None and expected_updated_ids is None ):
                 return
@@ -821,3 +827,10 @@ class TestSGBot(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
+    print()
+    note = '''
+    This test was initially written to assess the validity of tracking top k stories when k = 1.
+    Soon after deployment, we implemented tracking top k stories where k > 1.
+    This test assumes if k = 1 runs correctly, k > 1, should. But there's not guarantee.
+    '''
+    print(note)

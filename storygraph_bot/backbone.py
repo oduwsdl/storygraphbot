@@ -358,7 +358,7 @@ def sgbot(sgbot_path, activation_degree, overlap_threshold, top_stories_count, s
 
     sgbot_path = sgbot_path.strip()
     sgbot_path = sgbot_path[:-1] if sgbot_path.endswith('/') else sgbot_path
-    logger.info(f'Sgbot Path: {sgbot_path}\nActivation degree: {activation_degree}\nOverlap threshold: {overlap_threshold}\nTopstories Count: {top_stories_count}')
+    logger.info(f'Sgbot Path: {sgbot_path}\nActivation degree: {activation_degree}\nOverlap threshold: {overlap_threshold}\nTop stories count: {top_stories_count}')
 
     sg_stories = get_storygraph_stories(sgbot_path, start_datetime, end_datetime)
     if 'story_clusters' not in sg_stories:
