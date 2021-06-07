@@ -145,13 +145,12 @@ def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params
 
 
 
-def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):
-    
+def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):   
     data = {}
     try:
         cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output.log  2>&1')
         a = os.system(cmd)
-        data = get_dict_frm_file( f"{sgbot_path}/tmp/current_storygraphdata.json" )
+        data = get_dict_frm_file(f'{sgbot_path}/tmp/current_storygraphdata.json')
     except FileNotFoundError as e:
         logger.error('Please install storygraph-toolkit: https://github.com/oduwsdl/storygraph-toolkit.git')
     
