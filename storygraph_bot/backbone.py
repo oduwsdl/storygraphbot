@@ -58,16 +58,15 @@ def mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stor
 
         overlap = sorted(overlap, key=lambda x: x['coeff'], reverse=True)
         maxcoeff = overlap[0]['coeff']
-        chosensgtk_story_id = overlap[0]['sgtk_story_id']
-
-        if maxcoeff >= overlap_threshold:                 
+        
+        if maxcoeff >= overlap_threshold: 
+            chosensgtk_story_id = overlap[0]['sgtk_story_id']                
             new_graphs = sorted(list(stories_uri_dts[chosensgtk_story_id] - cs_uridt), reverse=True)
             matched_stories.update({story_id: {'overlap': overlap, "new_graph_timestamps": new_graphs}})
+            stories_uri_dts[chosensgtk_story_id] = set()            
         else:
             unmatched_stories.update({story_id: {'overlap': overlap}})
         
-        stories_uri_dts[chosensgtk_story_id] = set()            
-
     map_cachestories["matched_stories"] = matched_stories
     map_cachestories["unmatched_stories"] = unmatched_stories
     return(map_cachestories)
