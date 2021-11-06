@@ -143,6 +143,32 @@ def dump_json_to_file(outfilename, dict_to_write, indent_flag=True, extra_params
 
     return True
 
+def get_end_dates_for_range(start_date, end_date, hr_steps=0):
+
+    if( hr_steps < 1 ):
+        return {}
+
+    query_dates = []
+    cur_date = start_date
+    while True:
+
+        cur_date = cur_date + timedelta(days=hr_steps/24)
+        if( cur_date < end_date ):
+            query_dates.append(cur_date)
+        else:
+            break
+    query_dates.append(end_date)
+    
+    
+    #segment by day
+    day_segments = {}
+    for d in query_dates:
+        yyyy_mm_dd = d.strftime('%Y-%m-%d')
+        day_segments.setdefault(yyyy_mm_dd, [])
+        day_segments[yyyy_mm_dd].append( d.strftime('%Y-%m-%d %H:%M:%S') )
+
+    return day_segments
+
 
 
 def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):   

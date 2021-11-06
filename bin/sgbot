@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 
+from datetime import datetime
 from subprocess import list2cmdline
 
 from storygraph_bot.backbone import sgbot
@@ -12,6 +13,7 @@ from storygraph_bot.twitter_client import post_tweet
 from storygraph_bot.util import cleanup
 from storygraph_bot.util import dump_json_to_file
 from storygraph_bot.util import generic_error_info
+from storygraph_bot.util import get_end_dates_for_range
 from storygraph_bot.util import set_log_defaults
 from storygraph_bot.util import set_logger_dets
 
@@ -20,8 +22,8 @@ logger = logging.getLogger('sgbot.sgbot')
 def get_generic_args():
     parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=30), description='Bot that tracks and tweets about developing stories in near-realtime.')
     #groups here
-    parser.add_argument('--start-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')
-    parser.add_argument('--end-datetime', default='', help='"YYYY-mm-DD HH:MM:SS" datetime for filtering graphs.')    
+    parser.add_argument('--start-datetime', default='', help='"YYYY-MM-DD HH:MM:SS" datetime for filtering graphs.')
+    parser.add_argument('--end-datetime', default='', help='"YYYY-MM-DD HH:MM:SS" datetime for filtering graphs.')    
 
     parser.add_argument('--access-token', default='', help='Twitter API access-token')
     parser.add_argument('--access-token-secret', default='', help='Twitter API access-token-secret')
@@ -43,6 +45,7 @@ def get_generic_args():
     parser.add_argument('-p', '--sgbot-path', default=os.getcwd() + '/SGBOT_FILES', help='Path for storing all bot-associated files (e.g., storing stories).')
     parser.add_argument('--meter-glyph-on', default='●', help='On glyph to be used to fill progress bar.')
     parser.add_argument('--meter-glyph-off', default='○', help='Off glyph to be used to fill progress bar.')
+    parser.add_argument('--timetravel-rate', default=0, type=int, help='Hourly rate to increment --start-datetime.')
 
     return(parser)
 
@@ -74,6 +77,38 @@ def get_twitter_keys(params):
 
     return twitter_keys
 
+def sgbot_timetravel(args, twitter_keys, self_cmd):
+
+    try:
+        start_datetime = datetime.strptime(args.start_datetime, '%Y-%m-%d %H:%M:%S')
+        end_datetime = datetime.strptime(args.end_datetime, '%Y-%m-%d %H:%M:%S')
+    except:
+        generic_error_info()
+        return
+
+    date_ranges = get_end_dates_for_range(start_datetime, end_datetime, hr_steps=args.timetravel_rate)
+    for date, datetimes in date_ranges.items():
+        for i in range( len(datetimes) ):
+
+            end_datetime = datetimes[i]
+            start_datetime = date + ' 00:00:00'
+            if( start_datetime == end_datetime ):
+                continue
+
+            logger.info(f'Time travel date: {start_datetime}, {end_datetime}')
+
+            params = vars(args)
+            payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
+
+            if( i == len(datetimes) - 1 ):
+                logger.info('\tLast day, would attempt to post tweet')
+                post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
+
+            if( len(payload) != 0 ):
+                dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
+
+        logger.info('')
+
 def main():
 
     if( len(sys.argv) > 1 ):
@@ -97,7 +132,10 @@ def main():
     
     twitter_keys = get_twitter_keys(params)
     self_cmd = list2cmdline(sys.argv)
-    if( len(twitter_keys) == 0 ):
+
+    if( args.timetravel_rate > 0 ):
+        sgbot_timetravel(args, twitter_keys, self_cmd)
+    elif( len(twitter_keys) == 0 ):
         sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
     else:
         
