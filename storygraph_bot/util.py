@@ -174,7 +174,8 @@ def get_end_dates_for_range(start_date, end_date, hr_steps=0):
 def get_storygraph_stories(sgbot_path, start_datetime, end_datetime):   
     data = {}
     try:
-        cmd = (f'sgtk --pretty-print -o {sgbot_path}/tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output.log  2>&1')
+        cmd = f'sgtk --pretty-print -o {sgbot_path}/tmp/current_storygraphdata.json maxgraph --cluster-stories-by="max_avg_degree" --cluster-stories --start-datetime="{start_datetime}" --end-datetime="{end_datetime}" > {sgbot_path}/tmp/console_output.log  2>&1'
+        print('cmd:', cmd, '\n')        
         a = os.system(cmd)
         data = get_dict_frm_file(f'{sgbot_path}/tmp/current_storygraphdata.json')
     except FileNotFoundError as e:

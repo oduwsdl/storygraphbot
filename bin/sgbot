@@ -86,6 +86,7 @@ def sgbot_timetravel(args, twitter_keys, self_cmd):
         generic_error_info()
         return
 
+    ori_params = vars(args)
     date_ranges = get_end_dates_for_range(start_datetime, end_datetime, hr_steps=args.timetravel_rate)
     for date, datetimes in date_ranges.items():
         for i in range( len(datetimes) ):
@@ -96,9 +97,11 @@ def sgbot_timetravel(args, twitter_keys, self_cmd):
                 continue
 
             logger.info(f'Time travel date: {start_datetime}, {end_datetime}')
-
-            params = vars(args)
-            payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
+            params = dict(ori_params)
+            params.pop('start_datetime')
+            params.pop('end_datetime')
+            
+            payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), start_datetime, end_datetime, update_cache=False, self_cmd=self_cmd, **params)
 
             if( i == len(datetimes) - 1 ):
                 logger.info('\tLast day, would attempt to post tweet')
@@ -106,9 +109,8 @@ def sgbot_timetravel(args, twitter_keys, self_cmd):
 
             if( len(payload) != 0 ):
                 dump_json_to_file( payload['cache_path'], payload['cache_stories'], indent_flag=False, extra_params={'verbose': False} ) 
-
+            
         logger.info('')
-
 def main():
 
     if( len(sys.argv) > 1 ):
@@ -138,7 +140,6 @@ def main():
     elif( len(twitter_keys) == 0 ):
         sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), self_cmd=self_cmd, **params)
     else:
-        
         payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), params.pop('start_datetime'), params.pop('end_datetime'), update_cache=False, self_cmd=self_cmd, **params)
         if( len(payload) != 0 ):
             post_tweet( payload['cache_stories'], twitter_keys['consumer_key'], twitter_keys['consumer_secret'], twitter_keys['access_token'], twitter_keys['access_token_secret'], tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
