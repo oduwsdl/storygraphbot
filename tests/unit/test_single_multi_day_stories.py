@@ -72,7 +72,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20201002_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=57&hist=1440&t=2020-10-02T09:34:49'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=57&hist=144&t=2020-10-02T09:34:49'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -80,7 +80,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2020-10-02T12:55:40'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2020-10-02T12:55:40'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -88,7 +88,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2020-10-02T15:55:57'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2020-10-02T15:55:57'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -96,7 +96,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=1440&t=2020-10-02T17:07:41'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=144&t=2020-10-02T17:07:41'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -104,7 +104,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2020-10-02T21:54:18'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2020-10-02T21:54:18'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -112,7 +112,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2020-10-03T00:54:32'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2020-10-03T00:54:32'
             },
             {
                 'start_datetime': '2020-10-02 00:00:00',
@@ -120,7 +120,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2020-10-03T02:54:07'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2020-10-03T02:54:07'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -128,7 +128,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=1440&t=2020-10-03T04:45:37'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=144&t=2020-10-03T04:45:37'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -136,7 +136,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=56&hist=1440&t=2020-10-03T09:25:19'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=56&hist=144&t=2020-10-03T09:25:19'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -144,7 +144,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=70&hist=1440&t=2020-10-03T11:46:12'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=70&hist=144&t=2020-10-03T11:46:12'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -152,7 +152,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2020-10-03T15:56:43'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2020-10-03T15:56:43'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -160,7 +160,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=1440&t=2020-10-03T18:57:21'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=144&t=2020-10-03T18:57:21'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -168,7 +168,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2020-10-03T21:56:48'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2020-10-03T21:56:48'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -176,7 +176,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2020-10-04T00:57:03'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2020-10-04T00:57:03'
             },
             {
                 'start_datetime': '2020-10-03 00:00:00',
@@ -184,7 +184,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2020-10-04T02:56:41'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2020-10-04T02:56:41'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -192,7 +192,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=1440&t=2020-10-04T04:46:44'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=144&t=2020-10-04T04:46:44'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -200,7 +200,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=31&hist=1440&t=2020-10-04T05:16:34'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=31&hist=144&t=2020-10-04T05:16:34'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -208,7 +208,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2020-10-04T12:58:21'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2020-10-04T12:58:21'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -216,7 +216,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2020-10-04T15:58:59'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2020-10-04T15:58:59'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -224,7 +224,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=1440&t=2020-10-04T18:58:56'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=144&t=2020-10-04T18:58:56'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -232,7 +232,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2020-10-04T21:59:58'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2020-10-04T21:59:58'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -240,7 +240,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2020-10-05T00:59:07'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2020-10-05T00:59:07'
             },
             {
                 'start_datetime': '2020-10-04 00:00:00',
@@ -248,7 +248,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2020-10-05T02:58:47'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2020-10-05T02:58:47'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -256,7 +256,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=29&hist=1440&t=2020-10-05T04:58:21'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=29&hist=144&t=2020-10-05T04:58:21'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -264,7 +264,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=52&hist=1440&t=2020-10-05T08:49:32'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=52&hist=144&t=2020-10-05T08:49:32'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -272,7 +272,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=76&hist=1440&t=2020-10-05T12:50:19'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=76&hist=144&t=2020-10-05T12:50:19'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -280,7 +280,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=87&hist=1440&t=2020-10-05T14:40:11'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=87&hist=144&t=2020-10-05T14:40:11'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -288,7 +288,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=112&hist=1440&t=2020-10-05T18:51:20'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=112&hist=144&t=2020-10-05T18:51:20'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -296,7 +296,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=130&hist=1440&t=2020-10-05T21:50:45'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=130&hist=144&t=2020-10-05T21:50:45'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -304,7 +304,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=141&hist=1440&t=2020-10-05T23:40:22'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=141&hist=144&t=2020-10-05T23:40:22'
             },
             {
                 'start_datetime': '2020-10-05 00:00:00',
@@ -312,7 +312,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2020-10-06T02:50:36'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2020-10-06T02:50:36'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -320,7 +320,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=1440&t=2020-10-06T04:20:07'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=144&t=2020-10-06T04:20:07'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -328,7 +328,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=37&hist=1440&t=2020-10-06T06:11:01'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=37&hist=144&t=2020-10-06T06:11:01'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -336,7 +336,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2020-10-06T12:51:44'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2020-10-06T12:51:44'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -344,7 +344,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2020-10-06T15:51:51'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2020-10-06T15:51:51'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -352,7 +352,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=1440&t=2020-10-06T18:52:49'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=144&t=2020-10-06T18:52:49'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -360,7 +360,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2020-10-06T21:53:24'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2020-10-06T21:53:24'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -368,7 +368,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2020-10-07T00:52:54'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2020-10-07T00:52:54'
             },
             {
                 'start_datetime': '2020-10-06 00:00:00',
@@ -376,7 +376,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2020-10-07T02:51:58'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2020-10-07T02:51:58'
             },
             {
                 'start_datetime': '2020-10-07 00:00:00',
@@ -384,7 +384,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=1440&t=2020-10-07T04:22:20'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=144&t=2020-10-07T04:22:20'
             },
             {
                 'start_datetime': '2020-10-07 00:00:00',
@@ -392,7 +392,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20201007_1',
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=31&hist=1440&t=2020-10-07T05:13:12'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=31&hist=144&t=2020-10-07T05:13:12'
             },
             {
                 'run_sgbot': False,
@@ -401,7 +401,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20201007_1',
                 'expected_updated_ids': '20201002_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=58&hist=1440&t=2020-10-07T09:43:55'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=58&hist=144&t=2020-10-07T09:43:55'
             }
         ]
 
@@ -418,7 +418,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20180929_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=1440&t=2018-09-29T04:00:24'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=144&t=2018-09-29T04:00:24'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -426,7 +426,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2018-09-29T12:51:09'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2018-09-29T12:51:09'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -434,7 +434,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2018-09-29T15:51:58'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2018-09-29T15:51:58'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -442,7 +442,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=1440&t=2018-09-29T18:52:12'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=144&t=2018-09-29T18:52:12'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -450,7 +450,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2018-09-29T21:51:53'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2018-09-29T21:51:53'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -458,7 +458,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2018-09-30T00:52:19'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2018-09-30T00:52:19'
             },
             {
                 'start_datetime': '2018-09-29 00:00:00',
@@ -466,7 +466,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2018-09-30T02:53:14'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2018-09-30T02:53:14'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -474,7 +474,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=29&hist=1440&t=2018-09-30T04:53:11'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=29&hist=144&t=2018-09-30T04:53:11'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -482,7 +482,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=59&hist=1440&t=2018-09-30T09:53:46'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=59&hist=144&t=2018-09-30T09:53:46'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -490,7 +490,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2018-09-30T12:54:10'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2018-09-30T12:54:10'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -498,7 +498,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=94&hist=1440&t=2018-09-30T15:44:29'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=94&hist=144&t=2018-09-30T15:44:29'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -506,7 +506,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=98&hist=1440&t=2018-09-30T16:23:43'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=98&hist=144&t=2018-09-30T16:23:43'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -514,7 +514,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2018-09-30T21:54:25'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2018-09-30T21:54:25'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -522,7 +522,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2018-10-01T00:54:43'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2018-10-01T00:54:43'
             },
             {
                 'start_datetime': '2018-09-30 00:00:00',
@@ -530,7 +530,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2018-10-01T02:55:44'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2018-10-01T02:55:44'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -538,7 +538,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=1440&t=2018-10-01T04:05:02'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=144&t=2018-10-01T04:05:02'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -546,7 +546,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=42&hist=1440&t=2018-10-01T07:06:19'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=42&hist=144&t=2018-10-01T07:06:19'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -554,7 +554,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=66&hist=1440&t=2018-10-01T11:06:38'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=66&hist=144&t=2018-10-01T11:06:38'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -562,7 +562,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2018-10-01T15:56:10'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2018-10-01T15:56:10'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -570,7 +570,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=1440&t=2018-10-01T17:07:24'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=144&t=2018-10-01T17:07:24'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -578,7 +578,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=122&hist=1440&t=2018-10-01T20:28:30'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=122&hist=144&t=2018-10-01T20:28:30'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -586,7 +586,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2018-10-02T00:57:26'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2018-10-02T00:57:26'
             },
             {
                 'start_datetime': '2018-10-01 00:00:00',
@@ -594,7 +594,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2018-10-02T02:58:08'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2018-10-02T02:58:08'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -602,7 +602,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20180929_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=25&hist=1440&t=2018-10-02T04:17:31'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=25&hist=144&t=2018-10-02T04:17:31'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -610,7 +610,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20181002_1',
                 'expected_updated_ids': None,
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=47&hist=1440&t=2018-10-02T07:58:02'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=47&hist=144&t=2018-10-02T07:58:02'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -618,7 +618,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2018-10-02T12:58:56'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2018-10-02T12:58:56'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -626,7 +626,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=94&hist=1440&t=2018-10-02T15:50:51'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=94&hist=144&t=2018-10-02T15:50:51'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -634,7 +634,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=1440&t=2018-10-02T17:09:37'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=102&hist=144&t=2018-10-02T17:09:37'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -650,7 +650,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=1440&t=2018-10-03T00:49:57'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=5&hist=144&t=2018-10-03T00:49:57'
             },
             {
                 'start_datetime': '2018-10-02 00:00:00',
@@ -658,7 +658,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=1440&t=2018-10-03T02:50:33'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=17&hist=144&t=2018-10-03T02:50:33'
             },
             {
                 'start_datetime': '2018-10-03 00:00:00',
@@ -666,7 +666,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20181002_1',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=1440&t=2018-10-03T04:40:36'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=28&hist=144&t=2018-10-03T04:40:36'
             }
         ]
 
@@ -683,7 +683,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200610_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=1440&t=2020-06-10T04:05:38'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=24&hist=144&t=2020-06-10T04:05:38'
             },
             {
                 'start_datetime': '2020-06-10 00:00:00',
@@ -691,7 +691,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200610_1',
                 'expected_updated_ids': None,
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=76&hist=1440&t=2020-06-10T12:47:07'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=76&hist=144&t=2020-06-10T12:47:07'
             },
             {
                 'start_datetime': '2020-06-10 00:00:00',
@@ -699,7 +699,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20200610_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=79&hist=1440&t=2020-06-10T13:17:17'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=79&hist=144&t=2020-06-10T13:17:17'
             },
             {
 
@@ -708,7 +708,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200610_2',
                 'expected_updated_ids': None,
                 'story_indx': 2,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=103&hist=1440&t=2020-06-10T17:18:36'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=103&hist=144&t=2020-06-10T17:18:36'
             },
             {
                 'start_datetime': '2020-06-10 00:00:00',
@@ -716,7 +716,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200610_3',
                 'expected_updated_ids': '20200610_2',#the graph_uri of this story is NOT (story_indx = 3) tested since expected_g_uri assumes only one state
                 'story_indx': 3,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=1440&t=2020-06-10T21:58:16'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=131&hist=144&t=2020-06-10T21:58:16'
             },
             {
                 'run_sgbot': False,
@@ -725,7 +725,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200610_3',
                 'expected_updated_ids': '20200610_2',#the graph_uri of this story IS tested (story_indx = 2, expected_g_uri updated)
                 'story_indx': 2,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=117&hist=1440&t=2020-06-10T19:38:46'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=117&hist=144&t=2020-06-10T19:38:46'
             },
             {
                 'run_cleanup': True,
@@ -734,7 +734,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200407_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=1440&t=2020-04-07T04:30:39'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=26&hist=144&t=2020-04-07T04:30:39'
             },
             {
                 'start_datetime': '2020-04-07 00:00:00',
@@ -742,7 +742,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200407_1',
                 'expected_updated_ids': '20200407_0',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=72&hist=1440&t=2020-04-07T12:11:37'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=72&hist=144&t=2020-04-07T12:11:37'
             },
             {
                 'run_sgbot': False,
@@ -751,7 +751,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200407_1',
                 'expected_updated_ids': '20200407_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=66&hist=1440&t=2020-04-07T11:11:46'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=66&hist=144&t=2020-04-07T11:11:46'
             },
             {
                 'start_datetime': '2020-04-07 00:00:00',
@@ -759,7 +759,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200407_2',
                 'expected_updated_ids': '20200407_1',
                 'story_indx': 2,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=92&hist=1440&t=2020-04-07T15:32:15'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=92&hist=144&t=2020-04-07T15:32:15'
             },
             {
                 'run_sgbot': False,
@@ -768,7 +768,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20200407_2',
                 'expected_updated_ids': '20200407_1',
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=1440&t=2020-04-07T13:01:29'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=77&hist=144&t=2020-04-07T13:01:29'
             },
             {
                 'start_datetime': '2020-04-07 00:00:00',
@@ -776,7 +776,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20200407_2',
                 'story_indx': 2,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=103&hist=1440&t=2020-04-07T17:22:39'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=103&hist=144&t=2020-04-07T17:22:39'
             },
             {
                 'run_cleanup': True,
@@ -785,7 +785,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20190924_0',
                 'expected_updated_ids': None,
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=25&hist=1440&t=2019-09-24T04:13:01'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=25&hist=144&t=2019-09-24T04:13:01'
             },
             {
                 'start_datetime': '2019-09-24 00:00:00',
@@ -793,7 +793,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20190924_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=75&hist=1440&t=2019-09-24T12:34:31'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=75&hist=144&t=2019-09-24T12:34:31'
             },
             {
                 'start_datetime': '2019-09-24 00:00:00',
@@ -801,7 +801,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20190924_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=1440&t=2019-09-24T15:53:28'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=95&hist=144&t=2019-09-24T15:53:28'
             },
             {
                 'start_datetime': '2019-09-24 00:00:00',
@@ -809,7 +809,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': '20190924_1',
                 'expected_updated_ids': None,
                 'story_indx': 1,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=1440&t=2019-09-24T18:54:02'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=113&hist=144&t=2019-09-24T18:54:02'
             },
             {
                 'start_datetime': '2019-09-24 00:00:00',
@@ -817,7 +817,7 @@ class TestSGBot(unittest.TestCase):
                 'expected_new_story_id': None,
                 'expected_updated_ids': '20190924_0',
                 'story_indx': 0,
-                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=129&hist=1440&t=2019-09-24T21:36:19'
+                'expected_g_uri': 'https://web.archive.org/storygraph/graphs/usa/#cursor=129&hist=144&t=2019-09-24T21:36:19'
             }
         ]
 
