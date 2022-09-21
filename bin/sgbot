@@ -106,7 +106,7 @@ def sgbot_timetravel(args, twitter_keys, self_cmd):
             params.pop('end_datetime')
             
             payload = sgbot(params.pop('sgbot_path'), params.pop('activation_degree'), params.pop('overlap_threshold'), params.pop('top_stories_count'), start_datetime, end_datetime, update_cache=False, self_cmd=self_cmd, **params)
-            print('len(payload):', len(payload))
+            
             if( i == len(datetimes) - 1 ):
                 logger.info('\tLast day, would attempt to post tweet')
                 post_tweet( payload.get('cache_stories', {}), twitter_keys.get('consumer_key', ''), twitter_keys.get('consumer_secret', ''), twitter_keys.get('access_token', ''), twitter_keys.get('access_token_secret', ''), tweet_activation_degree=args.tweet_activation_degree, meter_glyph_on=args.meter_glyph_on, meter_glyph_off=args.meter_glyph_off )
