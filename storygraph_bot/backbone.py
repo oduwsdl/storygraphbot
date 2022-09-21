@@ -91,13 +91,9 @@ def mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date):
 def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_story_date, end_datetime, **kwargs):
     cache_stories = cache[cur_story_date]['stories']
 
-    if cache_stories != []:
-        stories_uri_dts =  get_stories_uri_datetimes(sg_stories["story_clusters"], cur_story_date)
-        cachedstories_uri_dts = get_stories_uri_datetimes(cache, cur_story_date)
-        #if cachedstories_uri_dts != []    :
-        map_cachestories = mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stories)
+    #if cache_stories != []:
+    if len(cache_stories) == 0:
 
-    else:
         map_cachestories = {}     
         multiday_start_date = datetime.strptime(cur_story_date, "%Y-%m-%d").date() - timedelta(days=1)
         multiday_start_datetime = f'{multiday_start_date} 00:00:00'
@@ -108,6 +104,11 @@ def map_cache_stories(sgbot_path, overlap_threshold, cache, sg_stories, cur_stor
             map_cachestories, cache = multiday_mapper(sgbot_path, overlap_threshold, cache, sg_stories, last_cache, multiday_start_date, end_datetime, cur_story_date)
             #print(map_cachestories)    
 
+    else:
+        stories_uri_dts =  get_stories_uri_datetimes(sg_stories["story_clusters"], cur_story_date)
+        cachedstories_uri_dts = get_stories_uri_datetimes(cache, cur_story_date)
+        #if cachedstories_uri_dts != []    :
+        map_cachestories = mapper(overlap_threshold, cachedstories_uri_dts, stories_uri_dts, cache_stories)
     
     if( kwargs.get('keep_history', False) is True ):
         mapper_update(sgbot_path, map_cachestories, sg_stories, cur_story_date)
