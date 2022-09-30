@@ -8,6 +8,11 @@ logger = logging.getLogger('sgbot.sgbot')
 
 def post_msg(consumer_key, consumer_secret, access_token, access_token_secret, msg='Hello, Test Message. Could delete soon.', reply_id=''):
     
+    for ky in [consumer_key, consumer_secret, access_token, access_token_secret]:
+        ky = ky.strip()
+        if( ky == '' ):
+            return {}
+
     resp_payload = {}
     try:
         # OAuth process, using the keys and tokens
