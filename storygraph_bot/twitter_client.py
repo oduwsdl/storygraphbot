@@ -1,12 +1,15 @@
 import logging
-import tweepy
+import sys
 
 from datetime import datetime
+from playwright.sync_api import sync_playwright
+from storygraph_bot.scrape_twitter import get_auth_twitter_pg
+from storygraph_bot.scrape_twitter import post_tweet as post_msg
 from storygraph_bot.util import generic_error_info
 
 logger = logging.getLogger('sgbot.sgbot')
 
-def post_msg(consumer_key, consumer_secret, access_token, access_token_secret, msg='Hello, Test Message. Could delete soon.', reply_id=''):
+def post_msg_v1(consumer_key, consumer_secret, access_token, access_token_secret, msg='Hello, Test Message. Could delete soon.', reply_id=''):
     
     for ky in [consumer_key, consumer_secret, access_token, access_token_secret]:
         ky = ky.strip()
@@ -34,6 +37,78 @@ def post_msg(consumer_key, consumer_secret, access_token, access_token_secret, m
         generic_error_info()
 
     return resp_payload
+
+def post_tweet_v1(stories, consumer_key, consumer_secret, access_token, access_token_secret, selected_dates=[], tweet_activation_degree=4, **kwargs):
+    
+    def check_should_post_story(story, tweet_activation_degree):
+
+        if( 'reported_graphs' not in story ):
+            return False
+
+        for sg in story['reported_graphs']:
+            if( sg['avg_degree'] >= tweet_activation_degree ):
+                return True
+
+        return False
+
+    logger.info('\npost_tweet():')
+    logger.info(f'\ttweet_activation_degree: {tweet_activation_degree}')
+
+    def post_tweets_for_story(story, story_date):
+
+        if( 'reported_graphs' not in story ):
+            return
+
+        for i in range( len(story['reported_graphs']) ):
+            
+            graph = story['reported_graphs'][i]
+            if( 'tweet_id' in graph ):
+                continue
+
+            reply_id = ''
+            degree_msg = ''
+            if( len(story['reported_graphs']) > 1 ):
+
+                prev_deg = story['reported_graphs'][i-1]['avg_degree']
+                now_deg = story['reported_graphs'][i]['avg_degree']
+                
+                if( prev_deg == now_deg ):
+                    degree_msg = 'same'
+                elif( now_deg > prev_deg ):
+                    degree_msg = 'rising'
+                else:
+                    degree_msg = 'falling'
+
+                if( 'tweet_id' in story['reported_graphs'][i-1] ):
+                    reply_id = story['reported_graphs'][i-1]['tweet_id']
+
+            msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg, **kwargs)
+            
+            logger.info( 'Posting story id: {}'.format(story['story_id']) )
+            logger.info(msg)
+
+            resp_payload = post_msg(consumer_key, consumer_secret, access_token, access_token_secret, msg=msg, reply_id=reply_id)
+            if( 'tweet_id' in resp_payload ):
+                logger.info( '\tPosted successfully: {}'.format(resp_payload['tweet_id']) )
+                graph['tweet_id'] = resp_payload['tweet_id']
+
+            logger.info('')
+
+    for date, date_payload in stories.items():
+
+
+        if( len(selected_dates) != 0 ):
+            if( date not in selected_dates ):
+                continue
+
+        for i in range( len(date_payload['stories']) ):
+            
+            story = date_payload['stories'][i]
+            reply_id = ''
+            if( check_should_post_story(story, tweet_activation_degree) == False ):
+                continue
+
+            post_tweets_for_story(story, date)
 
 def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     
@@ -126,7 +201,52 @@ def compose_msg_for_story(graph, graph_pos, story, story_date, **kwargs):
     
     return msg_start
 
-def post_tweet(stories, consumer_key, consumer_secret, access_token, access_token_secret, selected_dates=[], tweet_activation_degree=4, **kwargs):
+
+
+
+def post_tweets_for_story(browser_dets, story, story_date, **kwargs):
+
+    if( 'reported_graphs' not in story ):
+        return
+
+    for i in range( len(story['reported_graphs']) ):
+        
+        graph = story['reported_graphs'][i]
+        if( 'tweet_link' in graph ):
+            continue
+        
+        tweet_link = ''
+        degree_msg = ''
+        if( len(story['reported_graphs']) > 1 ):
+
+            prev_deg = story['reported_graphs'][i-1]['avg_degree']
+            now_deg = story['reported_graphs'][i]['avg_degree']
+            
+            if( prev_deg == now_deg ):
+                degree_msg = 'same'
+            elif( now_deg > prev_deg ):
+                degree_msg = 'rising'
+            else:
+                degree_msg = 'falling'
+
+
+            if( 'tweet_link' in story['reported_graphs'][i-1] ):
+                tweet_link = story['reported_graphs'][i-1]['tweet_link']
+
+        msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg, **kwargs)
+        
+        logger.info( 'Posting story id: {}'.format(story['story_id']) )
+        logger.info(msg)
+
+        resp_payload = post_msg(browser_dets, msg, twitter_account='xnwala', get_new_tweet_link=True, reply_to_link=tweet_link)
+        if( resp_payload.get('tweet_link', '') != '' ):
+            logger.info( '\tPosted successfully: {}'.format(resp_payload['tweet_link']) )
+            graph['tweet_link'] = resp_payload['tweet_link']
+
+        logger.info('')
+
+
+def post_tweet(stories, selected_dates=[], tweet_activation_degree=4, **kwargs):
     
     def check_should_post_story(story, tweet_activation_degree):
 
@@ -142,59 +262,26 @@ def post_tweet(stories, consumer_key, consumer_secret, access_token, access_toke
     logger.info('\npost_tweet():')
     logger.info(f'\ttweet_activation_degree: {tweet_activation_degree}')
 
-    def post_tweets_for_story(story, story_date):
+    unsafe_cred_path = kwargs.get('unsafe_cred_path', '')
+    unsafe_cred_path ='/tmp/' if unsafe_cred_path == '' else unsafe_cred_path
+    with sync_playwright() as playwright:
 
-        if( 'reported_graphs' not in story ):
+        browser_dets = get_auth_twitter_pg(playwright, headless=False, unsafe_cred_path=unsafe_cred_path)
+        if( len(browser_dets) == 0 ):
+            logger.info('\tfailed to get authenticated browser, so returning')
             return
 
-        for i in range( len(story['reported_graphs']) ):
+        for date, date_payload in stories.items():
             
-            graph = story['reported_graphs'][i]
-            if( 'tweet_id' in graph ):
-                continue
+            if( len(selected_dates) != 0 ):
+                if( date not in selected_dates ):
+                    continue
 
-            reply_id = ''
-            degree_msg = ''
-            if( len(story['reported_graphs']) > 1 ):
-
-                prev_deg = story['reported_graphs'][i-1]['avg_degree']
-                now_deg = story['reported_graphs'][i]['avg_degree']
+            for i in range( len(date_payload['stories']) ):
                 
-                if( prev_deg == now_deg ):
-                    degree_msg = 'same'
-                elif( now_deg > prev_deg ):
-                    degree_msg = 'rising'
-                else:
-                    degree_msg = 'falling'
+                story = date_payload['stories'][i]
+                reply_id = ''
+                if( check_should_post_story(story, tweet_activation_degree) == False ):
+                    continue
 
-                if( 'tweet_id' in story['reported_graphs'][i-1] ):
-                    reply_id = story['reported_graphs'][i-1]['tweet_id']
-
-            msg = compose_msg_for_story(graph=graph, graph_pos=i, story=story, story_date=story_date, degree_msg=degree_msg, **kwargs)
-            
-            logger.info( 'Posting story id: {}'.format(story['story_id']) )
-            logger.info(msg)
-
-            resp_payload = post_msg(consumer_key, consumer_secret, access_token, access_token_secret, msg=msg, reply_id=reply_id)
-            if( 'tweet_id' in resp_payload ):
-                logger.info( '\tPosted successfully: {}'.format(resp_payload['tweet_id']) )
-                graph['tweet_id'] = resp_payload['tweet_id']
-
-            logger.info('')
-
-            
-    for date, date_payload in stories.items():
-
-
-        if( len(selected_dates) != 0 ):
-            if( date not in selected_dates ):
-                continue
-
-        for i in range( len(date_payload['stories']) ):
-            
-            story = date_payload['stories'][i]
-            reply_id = ''
-            if( check_should_post_story(story, tweet_activation_degree) == False ):
-                continue
-
-            post_tweets_for_story(story, date)
+                post_tweets_for_story(browser_dets, story, date, **kwargs)

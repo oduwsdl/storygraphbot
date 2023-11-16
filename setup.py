@@ -25,7 +25,11 @@ setup(
         "Operating System :: OS Independent"
     ],
     install_requires=[
-        'tweepy'
+        'beautifulsoup4',
+        'NwalaTextUtils',
+        'pytest-playwright',
+        'requests',
+        'urllib3<2.0'        
     ],
     scripts=[
         'bin/sgbot'
