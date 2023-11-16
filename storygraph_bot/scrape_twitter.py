@@ -69,7 +69,7 @@ def post_tweet(browser_dets, msg, button_name='Post', after_post_sleep=2.5, **kw
     if( get_new_tweet_link is True and twitter_accnt != '' ):
         
         tweets = get_search_tweets( browser_dets, f'(from:{twitter_accnt})' )
-        tweets['tweets'] = sorted(tweets['tweets'], key=lambda k: k['id_str'], reverse=True)
+        tweets['tweets'] = sorted(tweets['tweets'], key=lambda k: k.get('id_str', ''), reverse=True)
 
         for t in tweets['tweets']:
             
